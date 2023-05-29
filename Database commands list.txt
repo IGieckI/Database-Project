@@ -1,0 +1,83 @@
+CREATE DATABASE CardMarket
+USE CardMarket
+
+USE CardMarket
+
+CREATE TABLE Indirizzi(
+	ID INT PRIMARY KEY NOT NULL,
+	NCivico INT,
+	Via VARCHAR,
+	Città VARCHAR,
+	CAP INT,
+	Paese VARCHAR);
+
+CREATE TABLE Utenti(
+	Username INT PRIMARY KEY,
+	Password VARCHAR NOT NULL,
+	Email VARCHAR NOT NULL,
+	IDIndirizzo INT REFERENCES Indirizzi(ID)
+	NumeroDiTelefono VARCHAR,
+	Credito INT NOT NULL DEFAULT 0,
+	DataDiRegistrazione DATE DEFAULT GETDATE(),
+	CHECK Credito > 0);
+
+CREATE TABLE Admin (
+     Username char(1) PRIMARY KEY NOT NULL,
+     Password char(1) NOT NULL);
+
+CREATE TABLE Aquisto (
+     IDProdotto char(1) NOT NULL,
+     IDVenditore char(1) NOT NULL,
+     Quantità char(1) NOT NULL,
+     constraint IDAquisto primary key (IDProdotto, IDVenditore));
+
+CREATE TABLE Categoria (
+     Nome char(1) NOT NULL,
+     constraint IDCategoria primary key (Nome));
+
+CREATE TABLE Conto (
+     IBAN char(1) NOT NULL,
+     Nome della banca char(1) NOT NULL,
+     BIC/SWIFT char(1) NOT NULL,
+     constraint IDConto primary key (IBAN));
+
+CREATE TABLE Coupon (
+     CodiceCoupon char(1) NOT NULL,
+     Username char(1) NOT NULL,
+     Data di scadenza char(1) NOT NULL,
+     Valore char(1) NOT NULL,
+     Riscosso char(1) NOT NULL,
+     constraint IDCoupon primary key (CodiceCoupon));
+
+CREATE TABLE Espansione (
+     Nome char(1) NOT NULL,
+     Data di rilascio char(1) NOT NULL,
+     constraint IDEspansione primary key (Nome));
+
+CREATE TABLE Feedback (
+     ID char(1) NOT NULL,
+     Testo char(1) NOT NULL,
+     Voto char(1) NOT NULL);
+
+CREATE TABLE Offerta (
+     IDProdotto char(1) NOT NULL,
+     IDVenditore char(1) NOT NULL,
+     Prezzo char(1) NOT NULL,
+     Quantità char(1) NOT NULL,
+     Condizioni char(1) NOT NULL,
+     Lingua char(1) NOT NULL,
+     Locazione char(1) NOT NULL,
+     constraint IDOfferta primary key (IDProdotto, IDVenditore));
+
+CREATE TABLE Prodotto (
+     IDProdotto char(1) PRIMARY KEY NOT NULL,
+     Nome char(1) NOT NULL,
+     Data di rilascio char(1) NOT NULL,
+     Rarità char(1) NOT NULL,
+     Testo char(1) NOT NULL);
+
+CREATE TABLE Rarità (
+     Nome char(1) PRIMARY KEY NOT NULL);
+
+CREATE TABLE Venditore (
+     NVendite INT NOT NULL);
