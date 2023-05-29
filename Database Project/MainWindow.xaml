@@ -7,6 +7,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-
+        <Frame x:Name="innerFrame" Content="" Margin="0,50,0,0"/>
+        <Button Content="Button" HorizontalAlignment="Left" VerticalAlignment="Top" Height="50" Width="142"/>
     </Grid>
 </Window>
