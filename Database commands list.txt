@@ -1,83 +1,122 @@
 CREATE DATABASE CardMarket
 USE CardMarket
 
-USE CardMarket
+CREATE TABLE Utenti (
+     Username VARCHAR(15) PRIMARY KEY NOT NULL,
+     E-mail VARCHAR(30) NOT NULL,
+     Password VARCHAR(50) NOT NULL,
+     Via VARCHAR(20),
+	 NCivico INT,
+	 CAP INT,
+	 Città VARCHAR(30),
+	 Paese VARCHAR(30),
+     NumeroDiTelefono VARCHAR(1),
+     Credito INT NOT NULL,
+	 IDConto INT,
+	 FOREIGN KEY (IDConto) REFERENCES Conti(IDConto),
+	 UNIQUE(E-mail),
+	 UNIQUE(Numero_di_telefono),
+	 CHECK (Credito > 0));
 
-CREATE TABLE Indirizzi(
-	ID INT PRIMARY KEY NOT NULL,
-	NCivico INT,
-	Via VARCHAR,
-	Città VARCHAR,
-	CAP INT,
-	Paese VARCHAR);
-
-CREATE TABLE Utenti(
-	Username INT PRIMARY KEY,
-	Password VARCHAR NOT NULL,
-	Email VARCHAR NOT NULL,
-	IDIndirizzo INT REFERENCES Indirizzi(ID)
-	NumeroDiTelefono VARCHAR,
-	Credito INT NOT NULL DEFAULT 0,
-	DataDiRegistrazione DATE DEFAULT GETDATE(),
-	CHECK Credito > 0);
+CREATE TABLE Venditori (
+     Username VARCHAR(15) PRIMARY KEY NOT NULL,
+     E-mail VARCHAR(30) NOT NULL,
+     Password VARCHAR(50) NOT NULL,
+     Paese VARCHAR(1) NOT NULL,
+     Data di registrazione DATE NOT NULL,
+	 IDConto INT NOT NULL,
+	 FOREIGN KEY (IDConto) REFERENCES Conti(IDConto),
+	 UNIQUE(E-mail));
 
 CREATE TABLE Admin (
-     Username char(1) PRIMARY KEY NOT NULL,
-     Password char(1) NOT NULL);
+     Username VARCHAR(15) PRIMARY KEY NOT NULL,
+     E-mail VARCHAR(30) NOT NULL,
+     Password VARCHAR(50) NOT NULL,
+     DataDiScadenza DATE GETDATE(),
+	 UNIQUE(E-mail));
 
-CREATE TABLE Aquisto (
-     IDProdotto char(1) NOT NULL,
-     IDVenditore char(1) NOT NULL,
-     Quantità char(1) NOT NULL,
-     constraint IDAquisto primary key (IDProdotto, IDVenditore));
-
-CREATE TABLE Categoria (
-     Nome char(1) NOT NULL,
-     constraint IDCategoria primary key (Nome));
-
-CREATE TABLE Conto (
-     IBAN char(1) NOT NULL,
-     Nome della banca char(1) NOT NULL,
-     BIC/SWIFT char(1) NOT NULL,
-     constraint IDConto primary key (IBAN));
+CREATE TABLE Conti (
+     IDConto INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+     IBAN CHAR(27) NOT NULL,
+     NomeDellaBanca VARCHAR(40) NOT NULL,
+     BIC/SWIFT VARCHAR(11) NOT NULL);
 
 CREATE TABLE Coupon (
-     CodiceCoupon char(1) NOT NULL,
-     Username char(1) NOT NULL,
-     Data di scadenza char(1) NOT NULL,
-     Valore char(1) NOT NULL,
-     Riscosso char(1) NOT NULL,
-     constraint IDCoupon primary key (CodiceCoupon));
+     CodiceCoupon VARCHAR(10) PRIMARY KEY
+     Data_di_scadenza DATE NOT NULL,
+     Valore INT NOT NULL,
+	 UsernameGeneratore VARCHAR(15),
+	 UsernameUtilizzatore VARCHAR(15),
+	 FOREIGN KEY (UsernameGeneratore) REFERENCES Utenti(Username),
+	 FOREIGN KEY (UsernameUtilizzatore) REFERENCES Utenti(Username));
+	
+CREATE TABLE Prodotti (
+     IDProdotto INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+     Nome VARCHAR(30) NOT NULL,
+     Data_di_rilascio DATE NOT NULL,
+     Descrizione VARCHAR(100) NOT NULL
+	 Rarità VARCHAR(15) NOT NULL,
+	 Gioco VARCHAR(20) NOT NULL,
+	 Espansione VARCHAR(40),
+	 FOREIGN KEY (Rarità) REFERENCES Rarità(Nome),
+	 FOREIGN KEY (Gioco) REFERENCES Gioco(Nome),
+	 FOREIGN KEY (Espansione) REFERENCES Espansione(Nome));
 
-CREATE TABLE Espansione (
-     Nome char(1) NOT NULL,
-     Data di rilascio char(1) NOT NULL,
-     constraint IDEspansione primary key (Nome));
+CREATE TABLE ListeDesideri (
+	Username VARCHAR(15),
+	IDProdotto INT,
+	Quantità INT,
+	FOREIGN KEY (Username) REFERENCES Utenti(Username),
+	FOREIGN KEY (IDProdotto) REFERENCES Prodotti(IDProdotto)
+	PRIMARY KEY (Username, IDProdotto),
+	CHECK (Quantità > 0));
 
-CREATE TABLE Feedback (
-     ID char(1) NOT NULL,
-     Testo char(1) NOT NULL,
-     Voto char(1) NOT NULL);
+CREATE TABLE Offerte (
+     IDOfferta INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+     Prezzo FLOAT(10,2) NOT NULL,
+     Quantità INT NOT NULL,
+     Condizioni ENUM('Perfetto', 'Molto buono', 'Buono', 'Rovinato', 'Molto rovinato') NOT NULL,
+     Lingua VARCHAR(3) NOT NULL,
+     Locazione VARCHAR(20) NOT NULL,
+	 UsernameVenditore VARCHAR(15) NOT NULL,
+	 FOREIGN KEY (UsernameVenditore) REFERENCES Venditori(Username),
+	 CHECK(Quantità > 0),
+	 CHECK(Prezzo >= 0));
 
-CREATE TABLE Offerta (
-     IDProdotto char(1) NOT NULL,
-     IDVenditore char(1) NOT NULL,
-     Prezzo char(1) NOT NULL,
-     Quantità char(1) NOT NULL,
-     Condizioni char(1) NOT NULL,
-     Lingua char(1) NOT NULL,
-     Locazione char(1) NOT NULL,
-     constraint IDOfferta primary key (IDProdotto, IDVenditore));
+CREATE TABLE Vendite (
+     IDVendita INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+     Data DATETIME GETDATE(),
+	 Aquirente VARCHAR(15) NOT NULL,
+	 Venditore VARCHAR(15) NOT NULL,
+	 Feedback INT NOT NULL,
+	 FOREIGN KEY (Venditore) REFERENCES Venditori(Username),
+	 FOREIGN KEY (Aquirente) REFERENCES Utenti(Username),
+	 FOREIGN KEY (Feedback) REFERENCES Feedback(IDFeedback));
 
-CREATE TABLE Prodotto (
-     IDProdotto char(1) PRIMARY KEY NOT NULL,
-     Nome char(1) NOT NULL,
-     Data di rilascio char(1) NOT NULL,
-     Rarità char(1) NOT NULL,
-     Testo char(1) NOT NULL);
+CREATE TABLE Dettagli (
+     IDDettaglio INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+     Prezzo FLOAT(10,2) NOT NULL,
+     Quantità INT NOT NULL,
+	 IDOfferta INT NOT NULL,
+	 IDVendita INT NOT NULL,
+	 FOREIGN KEY (IDOfferta) REFERENCES Offerte(IDOfferta),
+	 FOREIGN KEY (IDVendita) REFERENCES Vendite(IDVendita),
+	 CHECK(Quantità > 0),
+	 CHECK(Prezzo >= 0));
 
 CREATE TABLE Rarità (
-     Nome char(1) PRIMARY KEY NOT NULL);
+     Nome VARCHAR(15) PRIMARY KEY NOT NULL);
+CREATE TABLE Giochi (
+     Nome VARCHAR(20) PRIMARY KEY NOT NULL);
+	 
+CREATE TABLE Espansioni (
+     Nome VARCHAR(40) PRIMARY KEY NOT NULL,
+     Data_di_rilascio DATE NOT NULL);
 
-CREATE TABLE Venditore (
-     NVendite INT NOT NULL);
+CREATE TABLE Feedback (
+     IDFeedback INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+     Testo VARCHAR(100) NOT NULL,
+     Voto INT NOT NULL,
+	 Utente VARCHAR(15),
+	 FOREIGN KEY (Utente) REFERENCES Utenti(Username)
+	 CHECK(Voto >= 0 && Voto <= 10));
