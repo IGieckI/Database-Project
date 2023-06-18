@@ -1,6 +1,16 @@
-CREATE DATABASE CardMarket
+CREATE DATABASE CardMarket;
 
-USE CardMarket
+GO
+
+USE CardMarket;
+
+GO
+
+CREATE TABLE Conti (
+     IDConto INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+     IBAN CHAR(27) NOT NULL,
+     NomeDellaBanca VARCHAR(40) NOT NULL,
+     BIC_SWIFT VARCHAR(11) NOT NULL);
 
 CREATE TABLE Utenti (
      Username VARCHAR(15) PRIMARY KEY NOT NULL,
@@ -11,12 +21,12 @@ CREATE TABLE Utenti (
 	 CAP INT,
 	 Città VARCHAR(30),
 	 Paese VARCHAR(30),
-     NumeroDiTelefono VARCHAR(1),
+     NumeroDiTelefono VARCHAR(15),
      Credito INT NOT NULL,
 	 IDConto INT,
 	 FOREIGN KEY (IDConto) REFERENCES Conti(IDConto),
 	 UNIQUE(Email),
-	 UNIQUE(Numero_di_telefono),
+	 UNIQUE(NumeroDiTelefono),
 	 CHECK (Credito > 0));
 
 CREATE TABLE Venditori (
@@ -36,12 +46,6 @@ CREATE TABLE Admin (
      DataDiScadenza DATE DEFAULT GETDATE(),
 	 UNIQUE(Email));
 
-CREATE TABLE Conti (
-     IDConto INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
-     IBAN CHAR(27) NOT NULL,
-     NomeDellaBanca VARCHAR(40) NOT NULL,
-     BIC_SWIFT VARCHAR(11) NOT NULL);
-
 CREATE TABLE Coupon (
      CodiceCoupon VARCHAR(10) PRIMARY KEY,
      Data_di_scadenza DATE NOT NULL,
@@ -50,7 +54,17 @@ CREATE TABLE Coupon (
 	 UsernameUtilizzatore VARCHAR(15),
 	 FOREIGN KEY (UsernameGeneratore) REFERENCES Utenti(Username),
 	 FOREIGN KEY (UsernameUtilizzatore) REFERENCES Utenti(Username));
-	
+
+CREATE TABLE Rarità (
+     Nome VARCHAR(15) PRIMARY KEY NOT NULL);
+
+CREATE TABLE Giochi (
+     Nome VARCHAR(20) PRIMARY KEY NOT NULL);
+	 
+CREATE TABLE Espansioni (
+     Nome VARCHAR(40) PRIMARY KEY NOT NULL,
+     Data_di_rilascio DATE NOT NULL);
+
 CREATE TABLE Prodotti (
      IDProdotto INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
      Nome VARCHAR(30) NOT NULL,
@@ -60,8 +74,8 @@ CREATE TABLE Prodotti (
 	 Gioco VARCHAR(20) NOT NULL,
 	 Espansione VARCHAR(40),
 	 FOREIGN KEY (Rarità) REFERENCES Rarità(Nome),
-	 FOREIGN KEY (Gioco) REFERENCES Gioco(Nome),
-	 FOREIGN KEY (Espansione) REFERENCES Espansione(Nome));
+	 FOREIGN KEY (Gioco) REFERENCES Giochi(Nome),
+	 FOREIGN KEY (Espansione) REFERENCES Espansioni(Nome));
 
 CREATE TABLE ListeDesideri (
 	Username VARCHAR(15),
@@ -72,17 +86,29 @@ CREATE TABLE ListeDesideri (
 	PRIMARY KEY (Username, IDProdotto),
 	CHECK (Quantità > 0));
 
+CREATE TABLE Condizioni(
+	Nome VARCHAR(15) PRIMARY KEY NOT NULL);
+
 CREATE TABLE Offerte (
      IDOfferta INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
-     Prezzo FLOAT(10,2) NOT NULL,
+     Prezzo MONEY NOT NULL,
      Quantità INT NOT NULL,
-     Condizioni ENUM('Perfetto', 'Molto buono', 'Buono', 'Rovinato', 'Molto rovinato'),
+     Condizione VARCHAR(15),
      Lingua VARCHAR(3) NOT NULL,
      Locazione VARCHAR(20) NOT NULL,
 	 UsernameVenditore VARCHAR(15) NOT NULL,
 	 FOREIGN KEY (UsernameVenditore) REFERENCES Venditori(Username),
+	 FOREIGN KEY (Condizione) REFERENCES Condizioni(Nome),
 	 CHECK(Quantità > 0),
 	 CHECK(Prezzo >= 0));
+
+CREATE TABLE Feedback (
+     IDFeedback INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+     Testo VARCHAR(100) NOT NULL,
+     Voto INT NOT NULL,
+	 Utente VARCHAR(15),
+	 FOREIGN KEY (Utente) REFERENCES Utenti(Username),
+	 CHECK(Voto >= 0 AND Voto <= 10));
 
 CREATE TABLE Vendite (
      IDVendita INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
@@ -96,7 +122,7 @@ CREATE TABLE Vendite (
 
 CREATE TABLE Dettagli (
      IDDettaglio INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
-     Prezzo FLOAT(10,2) NOT NULL,
+     Prezzo MONEY NOT NULL,
      Quantità INT NOT NULL,
 	 IDOfferta INT NOT NULL,
 	 IDVendita INT NOT NULL,
@@ -104,20 +130,3 @@ CREATE TABLE Dettagli (
 	 FOREIGN KEY (IDVendita) REFERENCES Vendite(IDVendita),
 	 CHECK(Quantità > 0),
 	 CHECK(Prezzo >= 0));
-
-CREATE TABLE Rarità (
-     Nome VARCHAR(15) PRIMARY KEY NOT NULL);
-CREATE TABLE Giochi (
-     Nome VARCHAR(20) PRIMARY KEY NOT NULL);
-	 
-CREATE TABLE Espansioni (
-     Nome VARCHAR(40) PRIMARY KEY NOT NULL,
-     Data_di_rilascio DATE NOT NULL);
-
-CREATE TABLE Feedback (
-     IDFeedback INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
-     Testo VARCHAR(100) NOT NULL,
-     Voto INT NOT NULL,
-	 Utente VARCHAR(15),
-	 FOREIGN KEY (Utente) REFERENCES Utenti(Username),
-	 CHECK(Voto >= 0 AND Voto <= 10));
