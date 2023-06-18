@@ -15,7 +15,7 @@ CREATE TABLE Conti (
 CREATE TABLE Utenti (
      Username VARCHAR(15) PRIMARY KEY NOT NULL,
      Email VARCHAR(30) NOT NULL,
-     Password VARCHAR(50) NOT NULL,
+     Password VARCHAR(100) NOT NULL,
      Via VARCHAR(20),
 	 NCivico INT,
 	 CAP INT,
@@ -32,7 +32,7 @@ CREATE TABLE Utenti (
 CREATE TABLE Venditori (
      Username VARCHAR(15) PRIMARY KEY NOT NULL,
      Email VARCHAR(30) NOT NULL,
-     Password VARCHAR(50) NOT NULL,
+     Password VARCHAR(100) NOT NULL,
      Paese VARCHAR(1) NOT NULL,
      DataDiRegistrazione DATE NOT NULL,
 	 IDConto INT NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE Venditori (
 CREATE TABLE Admin (
      Username VARCHAR(15) PRIMARY KEY NOT NULL,
      Email VARCHAR(30) NOT NULL,
-     Password VARCHAR(50) NOT NULL,
+     Password VARCHAR(100) NOT NULL,
      DataDiScadenza DATE DEFAULT GETDATE(),
 	 UNIQUE(Email));
 
