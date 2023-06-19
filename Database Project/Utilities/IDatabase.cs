@@ -128,7 +128,8 @@ namespace Database_Project.Utilities
         /// </summary>
         /// <param name="username">User's username</param>
         /// <param name="productID">Product ID</param>
-        void AddToWishlist(string username, int productID);
+        /// <param name="quantity">Quantity of desired product</param>
+        void AddToWishlist(string username, int productID, int quantity);
 
         /// <summary>
         /// Create a coupon.
