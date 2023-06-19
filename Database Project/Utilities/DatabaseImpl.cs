@@ -16,11 +16,9 @@ namespace Database_Project.Utilities
     {
         private const string CONNECTION_STRING = $@"Data Source=DESKTOP-CDHTOA2;Initial Catalog = ASPAdventure; Integrated Security=SSPI;";
 
-        private PasswordManager _passwordManager;
-
         public DatabaseImpl()
         {
-            _passwordManager = new PasswordManager();
+
         }
 
         /// <summary>
@@ -166,7 +164,7 @@ namespace Database_Project.Utilities
 
                 string encryptedPassword = reader.GetString(2);
 
-                return _passwordManager.CheckPassword(password, encryptedPassword);
+                return PasswordManager.CheckPassword(password, encryptedPassword);
             }
         }
 
@@ -186,7 +184,7 @@ namespace Database_Project.Utilities
 
                 string encryptedPassword = reader.GetString(2);
 
-                return _passwordManager.CheckPassword(password, encryptedPassword);
+                return PasswordManager.CheckPassword(password, encryptedPassword);
             }
         }
 
@@ -208,7 +206,7 @@ namespace Database_Project.Utilities
 
                 string encryptedPassword = reader.GetString(2);
 
-                return _passwordManager.CheckPassword(password, encryptedPassword);
+                return PasswordManager.CheckPassword(password, encryptedPassword);
             }
         }
 
