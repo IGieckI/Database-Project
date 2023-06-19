@@ -10,7 +10,7 @@ namespace Database_Project.Utilities
 {
 
     /// <summary>
-    /// <inheritdoc/>
+    /// Implementation of the IDatabase interface.
     /// </summary>
     public class DatabaseImpl : IDatabase
     {
@@ -24,43 +24,12 @@ namespace Database_Project.Utilities
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public List<String> AskLogin(string tableName)
-        {
-            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
-            {
-                connection.Open();
-
-                // Retrieve column names from the specified table
-                SqlCommand command = new SqlCommand(
-                "SELECT COLUMN_NAME " +
-                "FROM INFORMATION_SCHEMA.COLUMNS " +
-                "WHERE TABLE_NAME = @TableName", connection);
-                command.Parameters.AddWithValue("@TableName", tableName);
-
-                List<string> lstColumn = new List<string>();
-                SqlDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    lstColumn.Add(reader.GetString(0));
-                }
-
-                reader.Close();
-
-                return lstColumn;
-            }
-
-        }
-
-        /// <summary>
-        /// <inheritdoc/>
-        /// </summary>
         public bool UserRegistration(string username, string password, string email)
         {
             using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
             {
                 connection.Open();
 
-                // Check if the username or email already exists in the database
                 SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM Users WHERE Username = @Username OR Email = @Email", connection);
                 command.Parameters.AddWithValue("@Username", username);
                 command.Parameters.AddWithValue("@Email", email);
@@ -68,11 +37,10 @@ namespace Database_Project.Utilities
 
                 if (count > 0)
                 {
-                    return false; // Username or email already exists
+                    return false;
                 }
 
-                // Insert the new user into the database
-                command = new SqlCommand("INSERT INTO Users (Username, Password, Email) VALUES (@Username, @Password, @Email)", connection);
+                command = new SqlCommand("INSERT INTO Utenti (Username, Password, Email) VALUES (@Username, @Password, @Email)", connection);
                 command.Parameters.AddWithValue("@Username", username);
                 command.Parameters.AddWithValue("@Password", password);
                 command.Parameters.AddWithValue("@Email", email);
@@ -91,7 +59,6 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                // Check if the username or email already exists in the database
                 SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM Sellers WHERE Username = @Username OR Email = @Email", connection);
                 command.Parameters.AddWithValue("@Username", username);
                 command.Parameters.AddWithValue("@Email", email);
@@ -99,19 +66,48 @@ namespace Database_Project.Utilities
 
                 if (count > 0)
                 {
-                    return false; // Username or email already exists
+                    return false;
                 }
 
-                // Insert the new seller into the database
-                command = new SqlCommand("INSERT INTO Sellers (Username, Password, Email, Country, IBAN, BankName, BicSwiftCode) VALUES (@Username, @Password, @Email, @Country, @IBAN, @BankName, @BicSwiftCode)", connection);
-                command.Parameters.AddWithValue("@Username", username);
-                command.Parameters.AddWithValue("@Password", password);
-                command.Parameters.AddWithValue("@Email", email);
-                command.Parameters.AddWithValue("@Country", country);
-                command.Parameters.AddWithValue("@IBAN", IBAN);
-                command.Parameters.AddWithValue("@BankName", bankName);
-                command.Parameters.AddWithValue("@BicSwiftCode", bicSwiftCode);
-                command.ExecuteNonQuery();
+                SqlTransaction transaction = connection.BeginTransaction();
+
+                try
+                {
+                    command = new SqlCommand("INSERT INTO Conti (IBAN, NomeDellaBanca, BIC_SWIFT) VALUES()");
+                    command.Parameters.AddWithValue("@IBAN", IBAN);
+                    command.Parameters.AddWithValue("@NomeDellaBanca", bankName);
+                    command.Parameters.AddWithValue("@BIC_SWIFT", bicSwiftCode);
+                    command.ExecuteNonQuery();
+
+                    command = new SqlCommand("SELECT IDConto FROM Conti WHERE IBAN = @IBAN;");
+                    command.Parameters.AddWithValue("@IBAN", IBAN);
+                    SqlDataReader reader = command.ExecuteReader();
+                    int accountId = -1;
+                    while (reader.Read())
+                    {
+                        accountId = reader.GetInt32(0);
+                    }
+
+                    if (accountId < 0)
+                    {
+                        return false;
+                    }
+
+                    command = new SqlCommand("INSERT INTO Venditori (Username, Password, Email, Paese, IDConto) VALUES (@Username, @Password, @Email, @Paese, @IDConto)", connection);
+                    command.Parameters.AddWithValue("@Username", username);
+                    command.Parameters.AddWithValue("@Password", password);
+                    command.Parameters.AddWithValue("@Email", email);
+                    command.Parameters.AddWithValue("@Paese", country);
+                    command.Parameters.AddWithValue("@IDConto", accountId);
+                    command.ExecuteNonQuery();
+
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw new Exception(ex.Message);
+                }
 
                 return true;
             }
@@ -126,7 +122,6 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                // Check if the username or email already exists in the database
                 SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM Admins WHERE Username = @Username OR Email = @Email", connection);
                 command.Parameters.AddWithValue("@Username", username);
                 command.Parameters.AddWithValue("@Email", email);
@@ -134,10 +129,9 @@ namespace Database_Project.Utilities
 
                 if (count > 0)
                 {
-                    return false; // Username or email already exists
+                    return false;
                 }
 
-                // Insert the new admin into the database
                 command = new SqlCommand("INSERT INTO Admins (Username, Password, Email) VALUES (@Username, @Password, @Email)", connection);
                 command.Parameters.AddWithValue("@Username", username);
                 command.Parameters.AddWithValue("@Password", password);
@@ -219,10 +213,19 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                // Update the user profile in the Users table
-                SqlCommand command = new SqlCommand("UPDATE Users SET Email = @Email, FullName = @FullName, Address = @Address WHERE Username = @Username", connection);
+                SqlCommand command = new SqlCommand("UPDATE Utenti SET Username = @Username, Email = @Email, " +
+                    "Password = @Password, Via = @Street, NCivico = @CivicAddress, CAP = @CAP, Citta = @City, " +
+                    "Paese = @Country, NumeroDiTelefono = @TelephoneNumber WHERE Username = @Username",
+                    connection);
                 command.Parameters.AddWithValue("@Username", user.Username);
                 command.Parameters.AddWithValue("@Email", user.Email);
+                command.Parameters.AddWithValue("@Password", user.Password);
+                command.Parameters.AddWithValue("@Street", user.Street);
+                command.Parameters.AddWithValue("@CivicAddress", user.CivicAddress);
+                command.Parameters.AddWithValue("@CAP", user.Cap);
+                command.Parameters.AddWithValue("@City", user.City);
+                command.Parameters.AddWithValue("@Country", user.Country);
+                command.Parameters.AddWithValue("@TelephoneNumber", user.TelephoneNumber);
                 command.ExecuteNonQuery();
             }
         }
@@ -273,8 +276,9 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                // Insert the new offer into the Offers table
-                SqlCommand command = new SqlCommand("INSERT INTO Offers (Username, Price, Quantity, Language, Location, Conditions) VALUES (@Username, @Price, @Quantity, @Language, @Location, @Conditions)", connection);
+                SqlCommand command = new SqlCommand("INSERT INTO Offerte (UsernameVenditore, Prezzo, " +
+                    "Quantita, Lingua, Locazione, Condizioni) VALUES (@Username, @Price, @Quantity, " +
+                    "@Language, @Location, @Conditions)", connection);
                 command.Parameters.AddWithValue("@Username", username);
                 command.Parameters.AddWithValue("@Price", price);
                 command.Parameters.AddWithValue("@Quantity", quantity);
@@ -294,8 +298,8 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                // Insert the new product into the Products table
-                SqlCommand command = new SqlCommand("INSERT INTO Products (Name, Description, Rarity, Game, Expansion) VALUES (@Name, @Description, @Rarity, @Game, @Expansion)", connection);
+                SqlCommand command = new SqlCommand("INSERT INTO Prodotti (Nome, Descrizione, Rarita, " +
+                    "Gioco, Espansione) VALUES (@Name, @Description, @Rarity, @Game, @Expansion)", connection);
                 command.Parameters.AddWithValue("@Name", name);
                 command.Parameters.AddWithValue("@Description", description);
                 command.Parameters.AddWithValue("@Rarity", rarity);
@@ -314,8 +318,9 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                // Update the product information in the Products table
-                SqlCommand command = new SqlCommand("UPDATE Products SET Name = @Name, Description = @Description, Rarity = @Rarity, Game = @Game, Expansion = @Expansion WHERE ID = @ID", connection);
+                SqlCommand command = new SqlCommand("UPDATE Prodotti SET Nome = @Name, " +
+                    "Descrizione = @Description, Rarita = @Rarity, Gioco = @Game, Espansione = @Expansion " +
+                    "WHERE IDProdotto = @ID", connection);
                 command.Parameters.AddWithValue("@ID", product.ProductId);
                 command.Parameters.AddWithValue("@Name", product.Name);
                 command.Parameters.AddWithValue("@Description", product.Description);
@@ -335,8 +340,7 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                // Insert the new expansion into the Expansions table
-                SqlCommand command = new SqlCommand("INSERT INTO Expansions (Name) VALUES (@Name)", connection);
+                SqlCommand command = new SqlCommand("INSERT INTO Espansioni (Name) VALUES (@Name)", connection);
                 command.Parameters.AddWithValue("@Name", name);
                 command.ExecuteNonQuery();
             }
@@ -351,24 +355,57 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                // Perform the buy operation logic here
-                // You can handle database transactions and update multiple tables as necessary
+                SqlTransaction transaction = connection.BeginTransaction();
+                SqlCommand command;
+
+                try
+                {
+                    command = new SqlCommand("INSERT INTO Vendite (Data, Aquirente, Venditore, Feedback) OUTPUT IDVendita " +
+                        "VALUES (@Date, @Buyer, @Seller, @Feedback)");
+                    DateTime currDate = DateTime.Now;
+                    command.Parameters.AddWithValue("@Date", currDate);
+                    command.Parameters.AddWithValue("@Buyer", userUsername);
+                    command.Parameters.AddWithValue("@Seller", sellerUsername);
+                    command.Parameters.AddWithValue("@Feedback", feedback.FeedbackId);
+                    int idVendita = (int)command.ExecuteScalar();
+
+                    List<int> detailsIDs = new List<int>();
+
+                    foreach (Detail detail in details)
+                    {
+                        command = new SqlCommand("INSERT INTO Dettagli (Prezzo, Quantita, IDOfferta, IDVendita) OUTPUT IDDettaglio" +
+                        "VALUES (@Price, @Quantity, @OffertID, @SellID)", connection);
+                        command.Parameters.AddWithValue("@Price", detail.Price);
+                        command.Parameters.AddWithValue("@Quantity", detail.Quantity);
+                        command.Parameters.AddWithValue("@OffertID", detail.OffertId);
+                        command.Parameters.AddWithValue("@SellID", idVendita);
+                        detailsIDs.Add((int)command.ExecuteScalar());
+                    }
+
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw new Exception(ex.Message);
+                }
             }
         }
 
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public void AddToWishlist(string username, int productID)
+        public void AddToWishlist(string username, int productID, int quantity)
         {
             using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
             {
                 connection.Open();
 
-                // Insert the product into the user's wishlist in the Wishlists table
-                SqlCommand command = new SqlCommand("INSERT INTO Wishlists (Username, ProductID) VALUES (@Username, @ProductID)", connection);
+                SqlCommand command = new SqlCommand("INSERT INTO Wishlists (Username, IDProdotto, Quantita) VALUES (@Username, @ProductID, @Quantity)", 
+                    connection);
                 command.Parameters.AddWithValue("@Username", username);
                 command.Parameters.AddWithValue("@ProductID", productID);
+                command.Parameters.AddWithValue("@Quantity", quantity);
                 command.ExecuteNonQuery();
             }
         }
@@ -382,10 +419,15 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                // Create a new coupon for the user in the Coupons table
-                SqlCommand command = new SqlCommand("INSERT INTO Coupons (Username, Value) VALUES (@Username, @Value)", connection);
-                command.Parameters.AddWithValue("@Username", username);
+                DateTime expireDate = DateTime.Now;
+                expireDate = expireDate.AddYears(1);
+
+                SqlCommand command = new SqlCommand("INSERT INTO Coupons (CodiceCoupon, DataDiScadenza, Valore, UsernameGeneratore) " +
+                    "VALUES (@CouponCode, @ExpireDate, @Value, @Username)", connection);
+                command.Parameters.AddWithValue("@CouponCode", RandomCoupon());
+                command.Parameters.AddWithValue("@ExpireDate", expireDate);
                 command.Parameters.AddWithValue("@Value", value);
+                command.Parameters.AddWithValue("@Username", username);
                 command.ExecuteNonQuery();
             }
         }
@@ -398,16 +440,64 @@ namespace Database_Project.Utilities
             using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
             {
                 connection.Open();
+                SqlTransaction transaction = connection.BeginTransaction();
 
-                // Insert the user's bank account into the UserBankAccounts table
-                SqlCommand command = new SqlCommand("INSERT INTO UserBankAccounts (Username, IBAN, BankName, BicSwift) VALUES (@Username, @IBAN, @BankName, @BicSwift)", connection);
-                command.Parameters.AddWithValue("@Username", username);
-                command.Parameters.AddWithValue("@IBAN", IBAN);
-                command.Parameters.AddWithValue("@BankName", bankName);
-                command.Parameters.AddWithValue("@BicSwift", BicSwift);
-                command.ExecuteNonQuery();
+                try
+                {
+                    SqlCommand command = new SqlCommand("INSERT INTO Conti (IBAN, NomeDellaBanca, BIC_SWIFT) " +
+                        "VALUES (@IBAN, @BankName, @BicSwift)", connection);
+                    command.Parameters.AddWithValue("@IBAN", IBAN);
+                    command.Parameters.AddWithValue("@BankName", bankName);
+                    command.Parameters.AddWithValue("@BicSwift", BicSwift);
+                    command.ExecuteNonQuery();
 
+                    command = new SqlCommand("SELECT IDConto FROM Conti WHERE IBAN = @IBAN;");
+                    command.Parameters.AddWithValue("@IBAN", IBAN);
+                    SqlDataReader reader = command.ExecuteReader();
+                    int accountId = -1;
+                    while (reader.Read())
+                    {
+                        accountId = reader.GetInt32(0);
+                    }
+
+                    if (accountId < 0)
+                    {
+                        throw new Exception("Couldn't find any reference to the bank account.");
+                    }
+
+                    command = new SqlCommand("UPDATE Utenti SET IDConto = @IDConto WHERE Username = @Username");
+                    command.Parameters.AddWithValue("@IDConto", accountId);
+                    command.Parameters.AddWithValue("@Username", username);
+                    command.ExecuteNonQuery();
+
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw new Exception(ex.Message);
+                }
             }
+        }
+
+        /// <summary>
+        /// Method to generate coupons
+        /// </summary>
+        /// <returns>A new coupon code</returns>
+        private string RandomCoupon()
+        {
+            Random random = new Random();            
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            const int couponLenght = 10;
+
+            char[] couponCode = new char[couponLenght];
+
+            for (int i = 0; i< couponLenght; i++)
+            {
+                couponCode[i] = chars[random.Next(chars.Length)];
+            }
+
+            return new string (couponCode);
         }
     }
 }
