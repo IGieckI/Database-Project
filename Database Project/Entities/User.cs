@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace Database_Project.Entities
 {
-    public record User(string username, string email, string way, int civicAddress, int cap, 
-        string city, string country, int telephoneNumber);
+    public record User(string Username, string Email, string Way, int CivicAddress, int Cap, 
+        string City, string Country, int TelephoneNumber);
 }

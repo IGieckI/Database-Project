@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace Database_Project.Entities
 {
-    public record Feedback(int feedbackId, int rating, string text, string username);
+    public record Feedback(int FeedbackId, int Rating, string Text, string Username);
 }

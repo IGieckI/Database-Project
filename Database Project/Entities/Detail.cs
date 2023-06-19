@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace Database_Project.Entities
 {
-    public record Detail(int detailId, float price, int quantity, int offertId, int sellId);
+    public record Detail(int DetailId, float Price, int Quantity, int OffertId, int SellId);
 }
