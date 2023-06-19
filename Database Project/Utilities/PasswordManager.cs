@@ -8,13 +8,10 @@ using System.Threading.Tasks;
 
 namespace Database_Project.Utilities
 {
-
-    // !!! FAI UN SEMPLICE CHECK SULLA PASSWORD CONVERTITA NON METTERE IN CHIARO QUELLA DAL DB !!!
-
     /// <summary>
     /// Utility class for basic operation with passwords.
     /// </summary>
-    public class PasswordManager
+    public static class PasswordManager
     {
         private const string PASSWORD_KEY = "nw0SKdEM2uJQCvsFS6bcwWyR4ATiyYDHD7sBp6Ag3go=";
 
@@ -24,10 +21,9 @@ namespace Database_Project.Utilities
         /// <param name="input">Entered password</param>
         /// <param name="encryptedPassword">Encrypted password</param>
         /// <returns>True if the inserted password is correct, false otherwise</returns>
-        public bool CheckPassword(string input, string encryptedPassword)
+        public static bool CheckPassword(string input, string encryptedPassword)
         {
-            string decryptedPassword = DecryptPassword(encryptedPassword);
-            return input == decryptedPassword;
+            return EncryptPassword(input) == encryptedPassword;
         }
 
         /// <summary>
@@ -35,7 +31,7 @@ namespace Database_Project.Utilities
         /// </summary>
         /// <param name="password">Give password</param>
         /// <returns>Encrypted password</returns>
-        public string EncryptPassword(string password)
+        public static string EncryptPassword(string password)
         {
             byte[] clearBytes = Encoding.Unicode.GetBytes(password);
 
@@ -68,7 +64,7 @@ namespace Database_Project.Utilities
         /// </summary>
         /// <param name="encryptedPassword">Encrypted password</param>
         /// <returns>The decrypted password</returns>
-        private string DecryptPassword(string encryptedPassword)
+        private static string DecryptPassword(string encryptedPassword)
         {
             byte[] cipherBytes = Convert.FromBase64String(encryptedPassword);
 
