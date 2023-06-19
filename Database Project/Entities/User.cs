@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace Database_Project.Entities
 {
-    public record Product(int productId, string name, DateTime date, string description, 
-        string rarity, string game, string expansion);
+    public record User(string username, string email, string way, int civicAddress, int cap, 
+        string city, string country, int telephoneNumber);
 }

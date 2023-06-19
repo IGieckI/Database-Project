@@ -6,6 +6,5 @@ using System.Threading.Tasks;
 
 namespace Database_Project.Entities
 {
-    public record Product(int productId, string name, DateTime date, string description, 
-        string rarity, string game, string expansion);
+    public record Feedback(int feedbackId, int rating, string text, string username);
 }
