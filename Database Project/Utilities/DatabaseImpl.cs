@@ -14,7 +14,7 @@ namespace Database_Project.Utilities
     /// </summary>
     public class DatabaseImpl : IDatabase
     {
-        private const string CONNECTION_STRING = $@"Data Source=DESKTOP-CDHTOA2;Initial Catalog = ASPAdventure; Integrated Security=SSPI;";
+        private const string CONNECTION_STRING = $@"Data Source=DESKTOP-CDHTOA2;Initial Catalog = CardMarket; Integrated Security=SSPI;";
 
         public DatabaseImpl()
         {
@@ -233,15 +233,27 @@ namespace Database_Project.Utilities
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public List<Product> GetProducts(string productName = "")
+        public List<Product> GetProducts(string productName = "", string rarity = "", string game = "")
         {
             using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
             {
                 connection.Open();
 
-                string sqlQuery = $"SELECT * FROM Prodotti WHERE Nome LIKE '%{productName}%';";
+                string sqlQuery = $"SELECT * FROM Prodotti WHERE Nome LIKE '%' + @ProductName + '%'";
+
+                if (rarity != "")
+                    sqlQuery += " AND Rarita = @Rarity";
+
+                if (game != "")
+                    sqlQuery += " AND Gioco = @Game";
+
+                sqlQuery += ";";
 
                 SqlCommand command = new SqlCommand(sqlQuery, connection);
+                command.Parameters.AddWithValue("@ProductName", productName);
+                command.Parameters.AddWithValue("@Rarity", rarity);
+                command.Parameters.AddWithValue("@Game", game);
+
                 SqlDataReader reader = command.ExecuteReader();
 
                 List<Product> products = new List<Product>();
@@ -254,7 +266,7 @@ namespace Database_Project.Utilities
                     string description = reader.GetString(3);
                     string rarita = reader.GetString(4);
                     string gioco = reader.GetString(5);
-                    string espansione = reader.GetString(6);
+                    string espansione = reader.GetValue(6) is DBNull ? "" : reader.GetString(6);
 
                     Product product = new(id, name, date, description, rarita, gioco, espansione);
 
@@ -264,6 +276,60 @@ namespace Database_Project.Utilities
                 reader.Close();
 
                 return products;
+            }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public List<string> GetRarities()
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open();
+
+                string sqlQuery = $"SELECT * FROM Rarita;";
+
+                SqlCommand command = new SqlCommand(sqlQuery, connection);
+                SqlDataReader reader = command.ExecuteReader();
+
+                var rarities = new List<string>();
+
+                while (reader.Read())
+                {
+                    rarities.Add(reader.GetString(0));
+                }
+
+                reader.Close();
+
+                return rarities;
+            }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public List<string> GetGames()
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open();
+
+                string sqlQuery = $"SELECT * FROM Giochi;";
+
+                SqlCommand command = new SqlCommand(sqlQuery, connection);
+                SqlDataReader reader = command.ExecuteReader();
+
+                var games = new List<string>();
+
+                while (reader.Read())
+                {
+                    games.Add(reader.GetString(0));
+                }
+
+                reader.Close();
+
+                return games;
             }
         }
 
