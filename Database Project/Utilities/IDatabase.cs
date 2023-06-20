@@ -77,8 +77,22 @@ namespace Database_Project.Utilities
         /// Retrive from database all the information about the product asked for.
         /// </summary>
         /// <param name="productName"> The entire or a part of the product name</param>
+        /// <param name="game"> The game filter</param>
+        /// <param name="rarity"> The rarity filter</param>
         /// <returns>A List of Product contained in the database</returns>
-        List<Product> GetProducts(string productName = "");
+        List<Product> GetProducts(string productName = "", string rarity = "", string game = "");
+
+        /// <summary>
+        /// Retrive every rarity from the database
+        /// </summary>
+        /// <returns>A list of rarities names</returns>
+        List<string> GetRarities();
+
+        /// <summary>
+        /// Retrive every game from the database
+        /// </summary>
+        /// <returns>A list the games names</returns>
+        List<string> GetGames();
 
         /// <summary>
         /// A Seller adding an offert.
