@@ -24,15 +24,15 @@ namespace Database_Project.Utilities
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public bool UserRegistration(string username, string password, string email)
+        public bool UserRegistration(Account account, BankAccount bankAccount = null)
         {
             using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
             {
                 connection.Open();
 
                 SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM Users WHERE Username = @Username OR Email = @Email", connection);
-                command.Parameters.AddWithValue("@Username", username);
-                command.Parameters.AddWithValue("@Email", email);
+                command.Parameters.AddWithValue("@Username", account.Username);
+                command.Parameters.AddWithValue("@Email", account.Email);
                 int count = (int)command.ExecuteScalar();
 
                 if (count > 0)
@@ -40,10 +40,22 @@ namespace Database_Project.Utilities
                     return false;
                 }
 
-                command = new SqlCommand("INSERT INTO Utenti (Username, Password, Email) VALUES (@Username, @Password, @Email)", connection);
-                command.Parameters.AddWithValue("@Username", username);
-                command.Parameters.AddWithValue("@Password", password);
-                command.Parameters.AddWithValue("@Email", email);
+                if (bankAccount != null)
+                {
+
+                }
+
+                command = new SqlCommand("INSERT INTO Utenti (Username, Password, Email, Via, NCivico, CAP, Citta, Paese, NumeroDiTelefono" + bankAccount is null ? "" : ", IDConto" + ") VALUES (@Username, @Password, @Email, @Street, @CivicAddress, @CAP, @City, @Country, @TelephoneNumber" + bankAccount is null ? "" : ", @BankAccountID" + ")", connection);
+                command.Parameters.AddWithValue("@Username", account.Username);
+                command.Parameters.AddWithValue("@Password", account.Password);
+                command.Parameters.AddWithValue("@Email", account.Email);
+                command.Parameters.AddWithValue("@Street", account.Street);
+                command.Parameters.AddWithValue("@CivicAddress", account.CivicAddress);
+                command.Parameters.AddWithValue("@CAP", account.Cap);
+                command.Parameters.AddWithValue("@City", account.City);
+                command.Parameters.AddWithValue("@Country", account.Country);
+                command.Parameters.AddWithValue("@TelephoneNumber", account.TelephoneNumber);
+                command.Parameters.AddWithValue("@BankAccountID", bankAccount.BankAccountID);
                 command.ExecuteNonQuery();
 
                 return true;
@@ -53,15 +65,15 @@ namespace Database_Project.Utilities
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public bool SellerRegistration(string username, string password, string email, string country, string IBAN, string bankName, string bicSwiftCode)
+        public bool SellerRegistration(Account account, BankAccount bankAccount)
         {
             using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
             {
                 connection.Open();
 
                 SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM Sellers WHERE Username = @Username OR Email = @Email", connection);
-                command.Parameters.AddWithValue("@Username", username);
-                command.Parameters.AddWithValue("@Email", email);
+                command.Parameters.AddWithValue("@Username", account.Username);
+                command.Parameters.AddWithValue("@Email", account.Email);
                 int count = (int)command.ExecuteScalar();
 
                 if (count > 0)
@@ -74,13 +86,13 @@ namespace Database_Project.Utilities
                 try
                 {
                     command = new SqlCommand("INSERT INTO Conti (IBAN, NomeDellaBanca, BIC_SWIFT) VALUES()");
-                    command.Parameters.AddWithValue("@IBAN", IBAN);
-                    command.Parameters.AddWithValue("@NomeDellaBanca", bankName);
-                    command.Parameters.AddWithValue("@BIC_SWIFT", bicSwiftCode);
+                    command.Parameters.AddWithValue("@IBAN", bankAccount.IBAN);
+                    command.Parameters.AddWithValue("@NomeDellaBanca", bankAccount.BankName);
+                    command.Parameters.AddWithValue("@BIC_SWIFT", bankAccount.BIC_SWIFT);
                     command.ExecuteNonQuery();
 
                     command = new SqlCommand("SELECT IDConto FROM Conti WHERE IBAN = @IBAN;");
-                    command.Parameters.AddWithValue("@IBAN", IBAN);
+                    command.Parameters.AddWithValue("@IBAN", bankAccount.IBAN);
                     SqlDataReader reader = command.ExecuteReader();
                     int accountId = -1;
                     while (reader.Read())
@@ -93,12 +105,12 @@ namespace Database_Project.Utilities
                         return false;
                     }
 
-                    command = new SqlCommand("INSERT INTO Venditori (Username, Password, Email, Paese, IDConto) VALUES (@Username, @Password, @Email, @Paese, @IDConto)", connection);
-                    command.Parameters.AddWithValue("@Username", username);
-                    command.Parameters.AddWithValue("@Password", password);
-                    command.Parameters.AddWithValue("@Email", email);
-                    command.Parameters.AddWithValue("@Paese", country);
-                    command.Parameters.AddWithValue("@IDConto", accountId);
+                    command = new SqlCommand("INSERT INTO Venditori (Username, Password, Email, Paese, IDConto) VALUES (@Username, @Password, @Email, @Country, @BankAccountID)", connection);
+                    command.Parameters.AddWithValue("@Username", account.Username);
+                    command.Parameters.AddWithValue("@Password", account.Password);
+                    command.Parameters.AddWithValue("@Email", account.Password);
+                    command.Parameters.AddWithValue("@Country", account.Password);
+                    command.Parameters.AddWithValue("@BankAccountID", accountId);
                     command.ExecuteNonQuery();
 
                     transaction.Commit();
@@ -116,15 +128,15 @@ namespace Database_Project.Utilities
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public bool AdminRegistration(string username, string password, string email)
+        public bool AdminRegistration(Account account)
         {
             using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
             {
                 connection.Open();
 
-                SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM Admins WHERE Username = @Username OR Email = @Email", connection);
-                command.Parameters.AddWithValue("@Username", username);
-                command.Parameters.AddWithValue("@Email", email);
+                SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM Admin WHERE Username = @Username OR Email = @Email", connection);
+                command.Parameters.AddWithValue("@Username", account.Username);
+                command.Parameters.AddWithValue("@Email", account.Email);
                 int count = (int)command.ExecuteScalar();
 
                 if (count > 0)
@@ -132,10 +144,10 @@ namespace Database_Project.Utilities
                     return false;
                 }
 
-                command = new SqlCommand("INSERT INTO Admins (Username, Password, Email) VALUES (@Username, @Password, @Email)", connection);
-                command.Parameters.AddWithValue("@Username", username);
-                command.Parameters.AddWithValue("@Password", password);
-                command.Parameters.AddWithValue("@Email", email);
+                command = new SqlCommand("INSERT INTO Admin (Username, Password, Email) VALUES (@Username, @Password, @Email)", connection);
+                command.Parameters.AddWithValue("@Username", account.Username);
+                command.Parameters.AddWithValue("@Password", PasswordManager.EncryptPassword(account.Password));
+                command.Parameters.AddWithValue("@Email", account.Email);
                 command.ExecuteNonQuery();
 
                 return true;
@@ -151,12 +163,19 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                string sqlQuery = $"SELECT Password FROM Utenti WHERE Username == '{username}';";
+                string sqlQuery = $"SELECT Password FROM Utenti WHERE Username = '{username}';";
 
                 SqlCommand command = new SqlCommand(sqlQuery, connection);
                 SqlDataReader reader = command.ExecuteReader();
 
+                if (!reader.HasRows)
+                {
+                    reader.Close();
+                    return false;
+                }
+
                 string encryptedPassword = reader.GetString(2);
+                reader.Close();
 
                 return PasswordManager.CheckPassword(password, encryptedPassword);
             }
@@ -193,11 +212,10 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                string sqlQuery = $"SELECT Password FROM Admin WHERE Username == '{username}';";
-
-                SqlCommand command = new SqlCommand(sqlQuery, connection);
+                SqlCommand command = new SqlCommand("SELECT * FROM Admin WHERE Username = @Username;", connection);
+                command.Parameters.AddWithValue("@Username", username);
                 SqlDataReader reader = command.ExecuteReader();
-
+                reader.Read();
                 string encryptedPassword = reader.GetString(2);
 
                 return PasswordManager.CheckPassword(password, encryptedPassword);
@@ -207,7 +225,7 @@ namespace Database_Project.Utilities
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public void EditUserProfile(User user)
+        public void EditUserProfile(Account user)
         {
             using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
             {
@@ -336,6 +354,33 @@ namespace Database_Project.Utilities
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
+        public List<string> GetExpansions()
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open();
+
+                string sqlQuery = $"SELECT * FROM Espansioni;";
+
+                SqlCommand command = new SqlCommand(sqlQuery, connection);
+                SqlDataReader reader = command.ExecuteReader();
+
+                var games = new List<string>();
+
+                while (reader.Read())
+                {
+                    games.Add(reader.GetString(0));
+                }
+
+                reader.Close();
+
+                return games;
+            }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
         public void AddOffert(string username, float price, int quantity, string language, string location, string conditions)
         {
             using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
@@ -406,7 +451,52 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                SqlCommand command = new SqlCommand("INSERT INTO Espansioni (Name) VALUES (@Name)", connection);
+                SqlCommand command = new SqlCommand("INSERT INTO Espansioni (Nome) VALUES (@Name)", connection);
+                command.Parameters.AddWithValue("@Name", name);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public void AddCondition(string name)
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open();
+
+                SqlCommand command = new SqlCommand("INSERT INTO Condizioni (Nome) VALUES (@Name)", connection);
+                command.Parameters.AddWithValue("@Name", name);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public void AddRarity(string name)
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open();
+
+                SqlCommand command = new SqlCommand("INSERT INTO Rarita (Nome) VALUES (@Name)", connection);
+                command.Parameters.AddWithValue("@Name", name);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public void AddGame(string name)
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open();
+
+                SqlCommand command = new SqlCommand("INSERT INTO Giochi (Nome) VALUES (@Name)", connection);
                 command.Parameters.AddWithValue("@Name", name);
                 command.ExecuteNonQuery();
             }
