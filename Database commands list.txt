@@ -63,7 +63,7 @@ CREATE TABLE Giochi (
 	 
 CREATE TABLE Espansioni (
      Nome VARCHAR(40) PRIMARY KEY NOT NULL,
-     DataDiRilascio DATE NOT NULL);
+     DataDiRilascio DATE DEFAULT GETDATE() NOT NULL);
 
 CREATE TABLE Prodotti (
      IDProdotto INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
