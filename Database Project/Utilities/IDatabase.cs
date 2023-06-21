@@ -11,37 +11,29 @@ namespace Database_Project.Utilities
      /// Class which provide a connection to the database 
      /// </summary>
     internal interface IDatabase
-    {   
+    {
         /// <summary>
         /// Register a new User.
         /// </summary>
-        /// <param name="username">User's username</param>
-        /// <param name="password">User's password</param>
-        /// <param name="email">User's email</param>
+        /// <param name="account">Object containing user's informations</param>
+        /// <param name="bankAccount">(Optional) Object containing informations related to the bank account of the user</param>
         /// <returns>True if registered correctly, false otherwise</returns>
-        bool UserRegistration(string username, string password, string email);
+        bool UserRegistration(Account account, BankAccount bankAccount = null);
 
         /// <summary>
         /// Register a new Seller.
         /// </summary>
-        /// <param name="username">Seller's username</param>
-        /// <param name="password">Seller's password</param>
-        /// <param name="email">Seller's email</param>
-        /// <param name="country">Seller's country</param>
-        /// <param name="IBAN">Seller's bank account's IBAN</param>
-        /// <param name="bankName">Seller's bank's name</param>
-        /// <param name="bicSwiftCode">Seller's bank account's BIC/SWIFT code</param>
+        /// <param name="account">Object containing seller's informations</param>
+        /// <param name="bankAccount">Object containing informations related to the bank account of the seller</param>
         /// <returns>True if registered correctly, false otherwise</returns>
-        bool SellerRegistration(string username, string password, string email, string country, string IBAN, string bankName, string bicSwiftCode);
+        bool SellerRegistration(Account account, BankAccount bankAccount);
 
         /// <summary>
         /// Register a new Admin.
         /// </summary>
-        /// <param name="username">Admin's username</param>
-        /// <param name="password">Admin's password</param>
-        /// <param name="email">Admin's email</param>
+        /// <param name="account">Object containing seller's informations</param>
         /// <returns>True if registered correctly, false otherwise</returns>
-        bool AdminRegistration(string username, string password, string email);
+        bool AdminRegistration(Account account);
 
         /// <summary>
         /// Check if the credentials are correct for an User
@@ -71,7 +63,7 @@ namespace Database_Project.Utilities
         /// Edit a user profile
         /// </summary>
         /// <param name="user">New user profile settings</param>
-        void EditUserProfile(User user);
+        void EditUserProfile(Account user);
 
         /// <summary>
         /// Retrive from database all the information about the product asked for.
@@ -93,6 +85,12 @@ namespace Database_Project.Utilities
         /// </summary>
         /// <returns>A list the games names</returns>
         List<string> GetGames();
+
+        /// <summary>
+        /// Retrive every expansion from the database
+        /// </summary>
+        /// <returns>A list the expansion names</returns>
+        List<string> GetExpansions();
 
         /// <summary>
         /// A Seller adding an offert.
@@ -126,6 +124,24 @@ namespace Database_Project.Utilities
         /// </summary>
         /// <param name="name">The new expansion name</param>
         void AddExpansion(string name);
+
+        /// <summary>
+        /// Add a new game.
+        /// </summary>
+        /// <param name="name">The new game name</param>
+        void AddGame(string name);
+
+        /// <summary>
+        /// Add a new rarity.
+        /// </summary>
+        /// <param name="name">The new rarity name</param>
+        void AddRarity(string name);
+
+        /// <summary>
+        /// Add a new condition.
+        /// </summary>
+        /// <param name="name">The new condition name</param>
+        void AddCondition(string name);
 
         /// <summary>
         /// Completing a buy operation
