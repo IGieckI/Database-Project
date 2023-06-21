@@ -5,9 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Database_Project"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="CardMarket" Height="470" Width="800" ResizeMode="CanMinimize">
     <Grid>
-        <Frame x:Name="innerFrame" Content="" Margin="0,50,0,0"/>
-        <Button Content="Button" HorizontalAlignment="Left" VerticalAlignment="Top" Height="50" Width="142"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="27*"/>
+        </Grid.ColumnDefinitions>
+        <Frame x:Name="frmPages" NavigationUIVisibility="Hidden" Margin="114,0,1,0" Grid.ColumnSpan="2" />
+        <Button x:Name="btnProfile" Content="Profile" HorizontalAlignment="Left" VerticalAlignment="Top" Height="49" Width="109" Margin="5,49,0,0" Click="btnProfile_Click" IsEnabled="False"/>
+        <Button x:Name="btnProducts" Content="Products" HorizontalAlignment="Left" VerticalAlignment="Top" Height="49" Width="109" Margin="5,0,0,0" Click="btnProducts_Click"/>
+        <Button x:Name="btnWishlist" Content="Wishlist" HorizontalAlignment="Left" VerticalAlignment="Top" Height="49" Width="109" Margin="5,98,0,0" Click="btnWishlist_Click" IsEnabled="False"/>
+        <RadioButton x:Name="rdbUser" Content="User" HorizontalAlignment="Left" Margin="10,260,0,0" VerticalAlignment="Top" GroupName="UserType" IsChecked="True"/>
+        <RadioButton x:Name="rdbSeller" Content="Seller" HorizontalAlignment="Left" Margin="10,276,0,0" VerticalAlignment="Top" GroupName="UserType"/>
+        <RadioButton x:Name="rdbAdmin" Content="Admin" HorizontalAlignment="Left" Margin="10,291,0,0" VerticalAlignment="Top" GroupName="UserType"/>
+        <Button x:Name="btnLogin" Content="Login" HorizontalAlignment="Left" Margin="10,386,0,0" VerticalAlignment="Top" Click="btnLogin_Click" IsDefault="True" Width="91"/>
+        <TextBox x:Name="txtUsername" HorizontalAlignment="Left" Margin="11,326,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="90"/>
+        <PasswordBox x:Name="txtPassword" HorizontalAlignment="Left" Margin="11,363,0,0" VerticalAlignment="Top" Width="90"/>
+        <Button x:Name="btnRegister" Content="Register" HorizontalAlignment="Left" Margin="5,147,0,0" VerticalAlignment="Top" Height="49" Width="109" Click="btnRegister_Click"/>
+        <Button x:Name="btnAdministration" Content="Administration" HorizontalAlignment="Left" Margin="5,196,0,0" VerticalAlignment="Top" Height="49" Width="109" Click="btnAdministration_Click" IsEnabled="False"/>
+        <Label x:Name="lblPassword" Content="Password" HorizontalAlignment="Left" Margin="7,341,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="lblUsername" Content="Username" HorizontalAlignment="Left" Margin="7,303,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="lblResult" Content="" HorizontalAlignment="Left" Margin="10,406,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="btnLogout" Content="Logout" HorizontalAlignment="Left" Margin="10,386,0,0" VerticalAlignment="Top" IsDefault="True" Width="91" Visibility="Hidden" Click="btnLogout_Click"/>
     </Grid>
 </Window>
