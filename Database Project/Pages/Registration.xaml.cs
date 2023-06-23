@@ -87,11 +87,8 @@ namespace Database_Project.Pages
                         lblResponse.Content = "Missing important fields!";
                         return;
                     }
-
-                    registrationResult = _database.UserRegistration(new Account(txtUsername.Text, txtEmail.Text, 
-                        new NetworkCredential(string.Empty, txtPassword.SecurePassword).Password, txtStreet.Text, Int32.Parse(txtCivicNumber.Text), 
-                        Int32.Parse(txtCap.Text), txtCity.Text, txtCountry.Text, Int32.Parse(txtTelephoneNumber.Text)), 
-                        new BankAccount(-1, txtIban.Text, txtBank.Text, txtBicswift.Text));
+                    BankAccount? bankAccount = txtIban.Text == "" || txtBank.Text == "" || txtBicswift.Text == "" ? null : BuildBankAccount();
+                    registrationResult = _database.UserRegistration(BuildAccount(), bankAccount);
                 }
                 else if (rdbSeller.IsChecked == true)
                 {
@@ -101,10 +98,7 @@ namespace Database_Project.Pages
                         return;
                     }
 
-                    registrationResult = _database.SellerRegistration(new Account(txtUsername.Text, txtEmail.Text, 
-                        new NetworkCredential(string.Empty, txtPassword.SecurePassword).Password, txtStreet.Text, Int32.Parse(txtCivicNumber.Text), 
-                        Int32.Parse(txtCap.Text), txtCity.Text, txtCountry.Text, Int32.Parse(txtTelephoneNumber.Text)), 
-                        new BankAccount(-1, txtIban.Text, txtBank.Text, txtBicswift.Text));
+                    registrationResult = _database.SellerRegistration(BuildAccount(), BuildBankAccount());
                 }
                 else if (rdbAdmin.IsChecked == true)
                 {
@@ -114,8 +108,7 @@ namespace Database_Project.Pages
                         return;
                     }
 
-                    registrationResult = _database.AdminRegistration(new Account(txtUsername.Text, txtEmail.Text, 
-                        new NetworkCredential(string.Empty, txtPassword.SecurePassword).Password, "", 0, 0, "", "", 0));
+                    registrationResult = _database.AdminRegistration(BuildAccount());
                 }
 
                 lblResponse.Content = registrationResult ? "Registration completed!" : "Registration error, try choose another Username or check if (*) fields are filled.";
@@ -140,6 +133,42 @@ namespace Database_Project.Pages
             {
                 lblResponse.Content = ex.Message;
             }            
+        }
+
+        /// <summary>
+        /// Build an account object from the form class
+        /// </summary>
+        /// <returns>An Account object with new user's informations</returns>
+        private Account BuildAccount()
+        {
+            string username = txtUsername.Text;
+            string email = txtEmail.Text;
+            string password = new NetworkCredential(string.Empty, txtPassword.SecurePassword).Password;
+            string? street = txtStreet.Text;
+            int? civicNumber = txtCivicNumber.Text == "" ? null : Int32.Parse(txtCivicNumber.Text);
+            int? cap = txtCap.Text == "" ? null : Int32.Parse(txtCap.Text);
+            string? city = txtCity.Text;
+            string? country = txtCountry.Text;
+            string telephoneNumber = txtTelephoneNumber.Text;
+
+            Account account = new Account(username, email, password, street, civicNumber, cap, city, country, telephoneNumber, 0);
+
+            return account;
+        }
+
+        /// <summary>
+        /// Build a bank account object from the form class
+        /// </summary>
+        /// <returns>A BankAccount object with new user's informations</returns>
+        private BankAccount BuildBankAccount()
+        {
+            string IBAN = txtIban.Text;
+            string BankName = txtBank.Text;
+            string BIC_SWIFT = txtBicswift.Text;
+
+            BankAccount bankAccount = new BankAccount(-1, IBAN, BankName, BIC_SWIFT);
+
+            return bankAccount;
         }
     }
 }
