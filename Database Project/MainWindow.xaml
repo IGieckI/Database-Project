@@ -14,7 +14,7 @@
         <Frame x:Name="frmPages" NavigationUIVisibility="Hidden" Margin="114,0,1,0" Grid.ColumnSpan="2" />
         <Button x:Name="btnProfile" Content="Profile" HorizontalAlignment="Left" VerticalAlignment="Top" Height="49" Width="109" Margin="5,49,0,0" Click="btnProfile_Click" IsEnabled="False"/>
         <Button x:Name="btnProducts" Content="Products" HorizontalAlignment="Left" VerticalAlignment="Top" Height="49" Width="109" Margin="5,0,0,0" Click="btnProducts_Click"/>
-        <Button x:Name="btnWishlist" Content="Wishlist" HorizontalAlignment="Left" VerticalAlignment="Top" Height="49" Width="109" Margin="5,98,0,0" Click="btnWishlist_Click" IsEnabled="False"/>
+        <Button x:Name="btnAddOfferts" Content="Add Offerts" HorizontalAlignment="Left" VerticalAlignment="Top" Height="49" Width="109" Margin="5,98,0,0" IsEnabled="False" Click="btnAddOfferts_Click"/>
         <RadioButton x:Name="rdbUser" Content="User" HorizontalAlignment="Left" Margin="10,260,0,0" VerticalAlignment="Top" GroupName="UserType" IsChecked="True"/>
         <RadioButton x:Name="rdbSeller" Content="Seller" HorizontalAlignment="Left" Margin="10,276,0,0" VerticalAlignment="Top" GroupName="UserType"/>
         <RadioButton x:Name="rdbAdmin" Content="Admin" HorizontalAlignment="Left" Margin="10,291,0,0" VerticalAlignment="Top" GroupName="UserType"/>

@@ -30,7 +30,7 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM Users WHERE Username = @Username OR Email = @Email", connection);
+                SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM Utenti WHERE Username = @Username OR Email = @Email", connection);
                 command.Parameters.AddWithValue("@Username", account.Username);
                 command.Parameters.AddWithValue("@Email", account.Email);
                 int count = (int)command.ExecuteScalar();
@@ -45,17 +45,17 @@ namespace Database_Project.Utilities
 
                 }
 
-                command = new SqlCommand("INSERT INTO Utenti (Username, Password, Email, Via, NCivico, CAP, Citta, Paese, NumeroDiTelefono" + bankAccount is null ? "" : ", IDConto" + ") VALUES (@Username, @Password, @Email, @Street, @CivicAddress, @CAP, @City, @Country, @TelephoneNumber" + bankAccount is null ? "" : ", @BankAccountID" + ")", connection);
+                command = new SqlCommand("INSERT INTO Utenti (Username, Password, Email, Via, NCivico, CAP, Citta, Paese, NumeroDiTelefono" + (bankAccount is null ? "" : ", IDConto") + ") VALUES (@Username, @Password, @Email, @Street, @CivicAddress, @CAP, @City, @Country, @TelephoneNumber" + (bankAccount is null ? "" : ", @BankAccountID") + ")", connection);
                 command.Parameters.AddWithValue("@Username", account.Username);
-                command.Parameters.AddWithValue("@Password", account.Password);
+                command.Parameters.AddWithValue("@Password", PasswordManager.EncryptPassword(account.Password));
                 command.Parameters.AddWithValue("@Email", account.Email);
                 command.Parameters.AddWithValue("@Street", account.Street);
-                command.Parameters.AddWithValue("@CivicAddress", account.CivicAddress);
-                command.Parameters.AddWithValue("@CAP", account.Cap);
+                command.Parameters.AddWithValue("@CivicAddress", account.CivicAddress is null ? DBNull.Value : account.CivicAddress);
+                command.Parameters.AddWithValue("@CAP", account.Cap is null ? DBNull.Value : account.Cap);
                 command.Parameters.AddWithValue("@City", account.City);
                 command.Parameters.AddWithValue("@Country", account.Country);
-                command.Parameters.AddWithValue("@TelephoneNumber", account.TelephoneNumber);
-                command.Parameters.AddWithValue("@BankAccountID", bankAccount.BankAccountID);
+                command.Parameters.AddWithValue("@TelephoneNumber", account.TelephoneNumber is null ? DBNull.Value : account.TelephoneNumber);
+                command.Parameters.AddWithValue("@BankAccountID", bankAccount is null ? DBNull.Value : bankAccount.BankAccountID );
                 command.ExecuteNonQuery();
 
                 return true;
@@ -71,7 +71,7 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM Sellers WHERE Username = @Username OR Email = @Email", connection);
+                SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM Venditori WHERE Username = @Username OR Email = @Email", connection);
                 command.Parameters.AddWithValue("@Username", account.Username);
                 command.Parameters.AddWithValue("@Email", account.Email);
                 int count = (int)command.ExecuteScalar();
@@ -107,7 +107,7 @@ namespace Database_Project.Utilities
 
                     command = new SqlCommand("INSERT INTO Venditori (Username, Password, Email, Paese, IDConto) VALUES (@Username, @Password, @Email, @Country, @BankAccountID)", connection);
                     command.Parameters.AddWithValue("@Username", account.Username);
-                    command.Parameters.AddWithValue("@Password", account.Password);
+                    command.Parameters.AddWithValue("@Password", PasswordManager.EncryptPassword(account.Password));
                     command.Parameters.AddWithValue("@Email", account.Password);
                     command.Parameters.AddWithValue("@Country", account.Password);
                     command.Parameters.AddWithValue("@BankAccountID", accountId);
@@ -163,9 +163,8 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                string sqlQuery = $"SELECT Password FROM Utenti WHERE Username = '{username}';";
-
-                SqlCommand command = new SqlCommand(sqlQuery, connection);
+                SqlCommand command = new SqlCommand("SELECT * FROM Utenti WHERE Username = @Username;", connection);
+                command.Parameters.AddWithValue("@Username", username);
                 SqlDataReader reader = command.ExecuteReader();
 
                 if (!reader.HasRows)
@@ -174,6 +173,7 @@ namespace Database_Project.Utilities
                     return false;
                 }
 
+                reader.Read();
                 string encryptedPassword = reader.GetString(2);
                 reader.Close();
 
@@ -190,11 +190,17 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                string sqlQuery = $"SELECT Password FROM Venditori WHERE Username == '{username}';";
-
-                SqlCommand command = new SqlCommand(sqlQuery, connection);
+                SqlCommand command = new SqlCommand("SELECT * FROM Venditori WHERE Username == @Username;", connection);
+                command.Parameters.AddWithValue("@Username", username);
                 SqlDataReader reader = command.ExecuteReader();
 
+                if (!reader.HasRows)
+                {
+                    reader.Close();
+                    return false;
+                }
+
+                reader.Read();
                 string encryptedPassword = reader.GetString(2);
 
                 return PasswordManager.CheckPassword(password, encryptedPassword);
@@ -215,6 +221,13 @@ namespace Database_Project.Utilities
                 SqlCommand command = new SqlCommand("SELECT * FROM Admin WHERE Username = @Username;", connection);
                 command.Parameters.AddWithValue("@Username", username);
                 SqlDataReader reader = command.ExecuteReader();
+
+                if (!reader.HasRows)
+                {
+                    reader.Close();
+                    return false;
+                }
+
                 reader.Read();
                 string encryptedPassword = reader.GetString(2);
 
@@ -306,9 +319,7 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                string sqlQuery = $"SELECT * FROM Rarita;";
-
-                SqlCommand command = new SqlCommand(sqlQuery, connection);
+                SqlCommand command = new SqlCommand("SELECT * FROM Rarita;", connection);
                 SqlDataReader reader = command.ExecuteReader();
 
                 var rarities = new List<string>();
@@ -333,9 +344,7 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                string sqlQuery = $"SELECT * FROM Giochi;";
-
-                SqlCommand command = new SqlCommand(sqlQuery, connection);
+                SqlCommand command = new SqlCommand("SELECT * FROM Giochi;", connection);
                 SqlDataReader reader = command.ExecuteReader();
 
                 var games = new List<string>();
@@ -358,11 +367,9 @@ namespace Database_Project.Utilities
         {
             using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
             {
-                connection.Open();
+                connection.Open();;
 
-                string sqlQuery = $"SELECT * FROM Espansioni;";
-
-                SqlCommand command = new SqlCommand(sqlQuery, connection);
+                SqlCommand command = new SqlCommand("SELECT * FROM Espansioni;", connection);
                 SqlDataReader reader = command.ExecuteReader();
 
                 var games = new List<string>();
@@ -381,21 +388,46 @@ namespace Database_Project.Utilities
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public void AddOffert(string username, float price, int quantity, string language, string location, string conditions)
+        public List<string> GetConditions()
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open(); ;
+
+                SqlCommand command = new SqlCommand("SELECT * FROM Condizioni;", connection);
+                SqlDataReader reader = command.ExecuteReader();
+
+                var games = new List<string>();
+
+                while (reader.Read())
+                {
+                    games.Add(reader.GetString(0));
+                }
+
+                reader.Close();
+
+                return games;
+            }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public void AddOffert(string seller, float price, int quantity, string language, string location, string conditions, int productId)
         {
             using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
             {
                 connection.Open();
 
-                SqlCommand command = new SqlCommand("INSERT INTO Offerte (UsernameVenditore, Prezzo, " +
-                    "Quantita, Lingua, Locazione, Condizioni) VALUES (@Username, @Price, @Quantity, " +
-                    "@Language, @Location, @Conditions)", connection);
-                command.Parameters.AddWithValue("@Username", username);
+                SqlCommand command = new SqlCommand("INSERT INTO Offerte (Prezzo, Quantita, Lingua, Locazione, Condizione, Prodotto, UsernameVenditore)" +
+                    " VALUES (@Price, @Quantity, @Language, @Location, @Conditions, @Product, @Seller)", connection);
                 command.Parameters.AddWithValue("@Price", price);
                 command.Parameters.AddWithValue("@Quantity", quantity);
                 command.Parameters.AddWithValue("@Language", language);
                 command.Parameters.AddWithValue("@Location", location);
                 command.Parameters.AddWithValue("@Conditions", conditions);
+                command.Parameters.AddWithValue("@Product", productId);
+                command.Parameters.AddWithValue("@Seller", seller);
                 command.ExecuteNonQuery();
             }
         }
@@ -563,6 +595,40 @@ namespace Database_Project.Utilities
                 command.Parameters.AddWithValue("@ProductID", productID);
                 command.Parameters.AddWithValue("@Quantity", quantity);
                 command.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public List<Offert> GetOfferts(int productId)
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open();
+
+                SqlCommand command = new SqlCommand("SELECT * FROM Offerte WHERE Prodotto = @ProductID", connection);
+                command.Parameters.AddWithValue("@ProductID", productId);
+                SqlDataReader reader = command.ExecuteReader();
+
+                var offerts = new List<Offert>();
+
+                while (reader.Read())
+                {
+                    int id = reader.GetInt32(0);
+                    float price = reader.GetFloat(1);
+                    int quantity = reader.GetInt32(2);
+                    string conditions = reader.GetString(3);
+                    string language = reader.GetString(4);
+                    string location = reader.GetString(5);
+                    int ProductId = reader.GetInt32(6);
+
+                    offerts.Append(new Offert(id, price, quantity, conditions, language, location, ProductId));
+                }
+
+                reader.Close();
+
+                return offerts;
             }
         }
 
