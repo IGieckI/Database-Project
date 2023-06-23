@@ -22,12 +22,12 @@ CREATE TABLE Utenti (
 	 Citta VARCHAR(30),
 	 Paese VARCHAR(30),
      NumeroDiTelefono VARCHAR(15),
-     Credito INT NOT NULL,
+     Credito INT DEFAULT 0 NOT NULL,
 	 IDConto INT,
 	 FOREIGN KEY (IDConto) REFERENCES Conti(IDConto),
 	 UNIQUE(Email),
 	 UNIQUE(NumeroDiTelefono),
-	 CHECK (Credito > 0));
+	 CHECK (Credito >= 0));
 
 CREATE TABLE Venditori (
      Username VARCHAR(15) PRIMARY KEY NOT NULL,
@@ -77,7 +77,7 @@ CREATE TABLE Prodotti (
 	 FOREIGN KEY (Gioco) REFERENCES Giochi(Nome),
 	 FOREIGN KEY (Espansione) REFERENCES Espansioni(Nome));
 
-CREATE TABLE ListeDesideri (
+CREATE TABLE Wishlist(
 	Username VARCHAR(15),
 	IDProdotto INT,
 	Quantita INT,
@@ -93,12 +93,15 @@ CREATE TABLE Offerte (
      IDOfferta INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
      Prezzo MONEY NOT NULL,
      Quantita INT NOT NULL,
-     Condizione VARCHAR(15),
      Lingua VARCHAR(3) NOT NULL,
      Locazione VARCHAR(20) NOT NULL,
+     Condizione VARCHAR(15),
+	 Prodotto INT NOT NULL,     
 	 UsernameVenditore VARCHAR(15) NOT NULL,
+
 	 FOREIGN KEY (UsernameVenditore) REFERENCES Venditori(Username),
 	 FOREIGN KEY (Condizione) REFERENCES Condizioni(Nome),
+	 FOREIGN KEY (Prodotto) REFERENCES Prodotti(IDProdotto),
 	 CHECK(Quantita > 0),
 	 CHECK(Prezzo >= 0));
 
