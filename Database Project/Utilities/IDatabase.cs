@@ -93,6 +93,12 @@ namespace Database_Project.Utilities
         List<string> GetExpansions();
 
         /// <summary>
+        /// Retrive every condition from the database
+        /// </summary>
+        /// <returns>A list the conditions names</returns>
+        List<string> GetConditions();
+
+        /// <summary>
         /// A Seller adding an offert.
         /// </summary>
         /// <param name="username">Seller's username</param>
@@ -101,7 +107,7 @@ namespace Database_Project.Utilities
         /// <param name="language">Language of product</param>
         /// <param name="location">Product location</param>
         /// <param name="conditions">Product conditions</param>
-        void AddOffert(string username, float price, int quantity, string language, string location, string conditions);
+        void AddOffert(string seller, float price, int quantity, string language, string location, string conditions, int productId);
 
         /// <summary>
         /// Add a new type of product to the database.
@@ -160,6 +166,27 @@ namespace Database_Project.Utilities
         /// <param name="productID">Product ID</param>
         /// <param name="quantity">Quantity of desired product</param>
         void AddToWishlist(string username, int productID, int quantity);
+
+        /// <summary>
+        /// Get the list of products in the user's wishlist
+        /// </summary>
+        /// <param name="username">The target user</param>
+        /// <returns>A list of products in the user's wishlist</returns>
+        List<WishlistItem> GetWishlist(string username);
+
+        /// <summary>
+        /// Find every offert for the given product
+        /// </summary>
+        /// <param name="productId">The product to search the offerts for</param>
+        /// <returns>The list of offerts for that product</returns>
+        List<Offert> GetOfferts(int productId);
+
+        /// <summary>
+        /// Get user's account informations
+        /// </summary>
+        /// <param name="username">User's username</param>
+        /// <returns>Informations about user's account</returns>
+        Account GetUserAccount(string username);
 
         /// <summary>
         /// Create a coupon.

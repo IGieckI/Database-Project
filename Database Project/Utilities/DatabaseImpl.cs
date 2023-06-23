@@ -45,12 +45,12 @@ namespace Database_Project.Utilities
 
                 }
 
-                command = new SqlCommand("INSERT INTO Utenti (Username, Password, Email, Via, NCivico, CAP, Citta, Paese, NumeroDiTelefono" + (bankAccount is null ? "" : ", IDConto") + ") VALUES (@Username, @Password, @Email, @Street, @CivicAddress, @CAP, @City, @Country, @TelephoneNumber" + (bankAccount is null ? "" : ", @BankAccountID") + ")", connection);
+                command = new SqlCommand("INSERT INTO Utenti (Username, Password, Email, Via, NCivico, CAP, Citta, Paese, NumeroDiTelefono" + (bankAccount is null ? "" : ", IDConto") + ") VALUES (@Username, @Password, @Email, @Street, @CivicNumber, @CAP, @City, @Country, @TelephoneNumber" + (bankAccount is null ? "" : ", @BankAccountID") + ")", connection);
                 command.Parameters.AddWithValue("@Username", account.Username);
                 command.Parameters.AddWithValue("@Password", PasswordManager.EncryptPassword(account.Password));
                 command.Parameters.AddWithValue("@Email", account.Email);
                 command.Parameters.AddWithValue("@Street", account.Street);
-                command.Parameters.AddWithValue("@CivicAddress", account.CivicAddress is null ? DBNull.Value : account.CivicAddress);
+                command.Parameters.AddWithValue("@CivicNumber", account.CivicNumber is null ? DBNull.Value : account.CivicNumber);
                 command.Parameters.AddWithValue("@CAP", account.Cap is null ? DBNull.Value : account.Cap);
                 command.Parameters.AddWithValue("@City", account.City);
                 command.Parameters.AddWithValue("@Country", account.Country);
@@ -245,14 +245,14 @@ namespace Database_Project.Utilities
                 connection.Open();
 
                 SqlCommand command = new SqlCommand("UPDATE Utenti SET Username = @Username, Email = @Email, " +
-                    "Password = @Password, Via = @Street, NCivico = @CivicAddress, CAP = @CAP, Citta = @City, " +
+                    "Password = @Password, Via = @Street, NCivico = @CivicNumber, CAP = @CAP, Citta = @City, " +
                     "Paese = @Country, NumeroDiTelefono = @TelephoneNumber WHERE Username = @Username",
                     connection);
                 command.Parameters.AddWithValue("@Username", user.Username);
                 command.Parameters.AddWithValue("@Email", user.Email);
                 command.Parameters.AddWithValue("@Password", user.Password);
                 command.Parameters.AddWithValue("@Street", user.Street);
-                command.Parameters.AddWithValue("@CivicAddress", user.CivicAddress);
+                command.Parameters.AddWithValue("@CivicNumber", user.CivicNumber);
                 command.Parameters.AddWithValue("@CAP", user.Cap);
                 command.Parameters.AddWithValue("@City", user.City);
                 command.Parameters.AddWithValue("@Country", user.Country);
@@ -589,12 +589,73 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                SqlCommand command = new SqlCommand("INSERT INTO Wishlists (Username, IDProdotto, Quantita) VALUES (@Username, @ProductID, @Quantity)", 
-                    connection);
+                SqlCommand command = new SqlCommand("SELECT * FROM Wishlist WHERE Username = @Username AND IDProdotto = @ProductID;", connection);
                 command.Parameters.AddWithValue("@Username", username);
                 command.Parameters.AddWithValue("@ProductID", productID);
-                command.Parameters.AddWithValue("@Quantity", quantity);
+
+                SqlDataReader reader = command.ExecuteReader();                
+                reader.Read();
+
+                int curQuantity = reader.HasRows ? reader.GetInt32(2) : -1;
+
+                reader.Close();
+
+                if (curQuantity == -1)
+                {
+                    command = new SqlCommand("INSERT INTO Wishlist (Username, IDProdotto, Quantita) VALUES (@Username, @ProductID, @Quantity)", connection);
+                    command.Parameters.AddWithValue("@Username", username);
+                    command.Parameters.AddWithValue("@ProductID", productID);
+                    command.Parameters.AddWithValue("@Quantity", 1);
+                }
+                else
+                {
+                    command = new SqlCommand("UPDATE Wishlist SET Quantita = @NewQuantity WHERE Username = @Username AND IDProdotto = @ProductID;", connection);
+                    command.Parameters.AddWithValue("@NewQuantity", curQuantity == -1 ? 1 : ++curQuantity);
+                    command.Parameters.AddWithValue("@Username", username);
+                    command.Parameters.AddWithValue("@ProductID", productID);
+                }
+
                 command.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public List<WishlistItem> GetWishlist(string username)
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open();
+
+                SqlCommand command = new SqlCommand("SELECT * FROM Wishlist WHERE Username = @Username", connection);
+                command.Parameters.AddWithValue("@Username", username);
+                SqlDataReader reader = command.ExecuteReader();
+
+                var offertsId = new List<Tuple<int,int>>();
+                var offerts = new List<WishlistItem>();
+
+                while (reader.Read())
+                {
+                    offertsId.Add(new Tuple<int,int>(reader.GetInt32(1), reader.GetInt32(2)));
+                }
+
+                reader.Close();
+
+                foreach(var offert in offertsId)
+                {
+                    command = new SqlCommand("SELECT * FROM Prodotti WHERE IDProdotto = @ProductID;", connection);
+                    command.Parameters.AddWithValue("@ProductID", offert.Item1);
+                    
+                    reader = command.ExecuteReader();
+                    reader.Read();
+
+                    offerts.Add(new WishlistItem(reader.GetString(1), offert.Item2, reader.GetString(4), reader.GetString(5), reader.GetValue(6) == DBNull.Value ? "" : reader.GetString(6)));
+
+                    reader.Close();
+                }
+
+                return offerts;
             }
         }
 
@@ -629,6 +690,42 @@ namespace Database_Project.Utilities
                 reader.Close();
 
                 return offerts;
+            }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public Account GetUserAccount(string username)
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open();
+
+                SqlCommand command = new SqlCommand("SELECT * FROM Utenti WHERE Username = @Username", connection);
+                command.Parameters.AddWithValue("@Username", username);
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (!reader.HasRows)
+                {
+                    throw new Exception("Account not found");
+                }
+
+                reader.Read();
+
+                string email = reader.GetString(1);
+                string password = reader.GetString(2);
+                string street = reader.GetValue(3) is null ? "" : reader.GetString(3);
+                int? civicNumber = reader.GetValue(4) is DBNull ? null : reader.GetInt32(4);
+                int? cap = reader.GetValue(5) is DBNull ? null : reader.GetInt32(5);
+                string city = reader.GetValue(6) is DBNull ? "" : reader.GetString(6);
+                string country = reader.GetValue(7) is DBNull ? "" : reader.GetString(7);
+                string telephoneNumber = reader.GetValue(8) is DBNull ? "" : reader.GetString(8);
+                int credit = reader.GetInt32(9);
+
+                reader.Close();
+
+                return new Account(username, email, password, street, civicNumber, cap, city, country, telephoneNumber, credit);
             }
         }
 
