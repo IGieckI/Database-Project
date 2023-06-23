@@ -12,18 +12,22 @@
         <Label Content="E-mail:" HorizontalAlignment="Left" Margin="24,49,0,0" VerticalAlignment="Top"/>
         <Label Content="Street:" HorizontalAlignment="Left" Margin="24,80,0,0" VerticalAlignment="Top"/>
         <Label Content="Civic number:" HorizontalAlignment="Left" Margin="24,111,0,0" VerticalAlignment="Top"/>
-        <Label Content="City:" HorizontalAlignment="Left" Margin="24,142,0,0" VerticalAlignment="Top"/>
-        <Label Content="Country:" HorizontalAlignment="Left" Margin="24,173,0,0" VerticalAlignment="Top"/>
-        <Label Content="Telephone number:" HorizontalAlignment="Left" Margin="24,204,0,0" VerticalAlignment="Top"/>
-        <Label Content="Credit:" HorizontalAlignment="Left" Margin="24,235,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="txtEmail" HorizontalAlignment="Left" Margin="138,53,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="txtStreet" HorizontalAlignment="Left" Margin="138,84,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="txtCivicNumber" HorizontalAlignment="Left" Margin="138,115,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="txtCity" HorizontalAlignment="Left" Margin="138,146,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="txtCountry" HorizontalAlignment="Left" Margin="138,177,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="txtTelephoneNumber" HorizontalAlignment="Left" Margin="138,208,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <Label x:Name="txtUsername" Content="Placeholder" HorizontalAlignment="Left" Margin="24,10,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="22"/>
-        <Button x:Name="btnUpdate" Content="Update" HorizontalAlignment="Left" Margin="193,280,0,0" VerticalAlignment="Top" Width="65"/>
-        <Label x:Name="lblCredit" Content="" HorizontalAlignment="Left" Margin="138,235,0,0" VerticalAlignment="Top"/>
+        <Label Content="CAP:" HorizontalAlignment="Left" Margin="24,142,0,0" VerticalAlignment="Top"/>
+        <Label Content="City:" HorizontalAlignment="Left" Margin="24,173,0,0" VerticalAlignment="Top"/>
+        <Label Content="Country:" HorizontalAlignment="Left" Margin="24,204,0,0" VerticalAlignment="Top"/>
+        <Label Content="Telephone number:" HorizontalAlignment="Left" Margin="24,235,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtEmail" HorizontalAlignment="Left" Margin="143,53,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="txtStreet" HorizontalAlignment="Left" Margin="143,84,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="txtCivicNumber" HorizontalAlignment="Left" Margin="143,115,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="txtCity" HorizontalAlignment="Left" Margin="143,177,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="txtCountry" HorizontalAlignment="Left" Margin="143,208,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="txtTelephoneNumber" HorizontalAlignment="Left" Margin="143,239,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <Label x:Name="lblUsername" Content="Placeholder" HorizontalAlignment="Left" Margin="24,10,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="22"/>
+        <Button x:Name="btnUpdate" Content="Update" HorizontalAlignment="Left" Margin="170,305,0,0" VerticalAlignment="Top" Width="66"/>
+        <Label x:Name="lblCredit" Content="" HorizontalAlignment="Left" Margin="143,270,0,0" VerticalAlignment="Top"/>
+        <Label Content="Wishlist:" HorizontalAlignment="Left" Margin="296,49,0,0" VerticalAlignment="Top"/>
+        <DataGrid x:Name="grdWishlist" Margin="296,75,54,189"/>
+        <Label Content="Credit:" HorizontalAlignment="Left" Margin="24,270,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtCap" HorizontalAlignment="Left" Margin="143,146,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
     </Grid>
 </Page>
