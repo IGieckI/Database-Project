@@ -23,14 +23,14 @@ namespace Database_Project.Pages
     public partial class Offerts : Page
     {
         private readonly IDatabase _database = new DatabaseImpl();
-        private List<Offert> _productList = new List<Offert>();
+        private List<Offert> _offertsList = new List<Offert>();
 
         public Offerts(Product product)
         {
             InitializeComponent();
 
-            _productList = _database.GetOfferts(product.ProductId);
-            grdOfferts.ItemsSource = _productList;
+            _offertsList = _database.GetOfferts(product.ProductId);
+            grdOfferts.ItemsSource = _offertsList;
             grdOfferts.Items.Refresh();
 
             lblName.Content = product.Name;
