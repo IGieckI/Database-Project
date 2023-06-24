@@ -20,5 +20,6 @@
         </DataGrid>
         <Button x:Name="btnWishlist" Content="Add to wishlist" HorizontalAlignment="Left" Margin="274,79,0,0" VerticalAlignment="Top" Width="105" Click="btnWishlist_Click"/>
         <Label x:Name="lblWishlistResult" Content="" HorizontalAlignment="Left" Margin="384,76,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="btnSeeOfferts" Content="See offerts" HorizontalAlignment="Left" Margin="580,79,0,0" VerticalAlignment="Top" Click="btnSeeOfferts_Click"/>
     </Grid>
 </Page>

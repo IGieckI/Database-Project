@@ -79,5 +79,14 @@ namespace Database_Project.Pages
                 lblWishlistResult.Content = ex.Message;
             }
         }
+
+        private void btnSeeOfferts_Click(object sender, RoutedEventArgs e)
+        {
+            if (grdProducts.SelectedIndex != -1)
+            {
+                NavigationService ns = NavigationService.GetNavigationService(this);
+                ns.Navigate(new Offerts(_productList[grdProducts.SelectedIndex]));
+            }            
+        }
     }
 }
