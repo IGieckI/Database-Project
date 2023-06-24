@@ -151,7 +151,7 @@ namespace Database_Project.Pages
             string? country = txtCountry.Text;
             string telephoneNumber = txtTelephoneNumber.Text;
 
-            Account account = new Account(username, email, password, street, civicNumber, cap, city, country, telephoneNumber, 0);
+            Account account = new Account(username, email, password, street, civicNumber, cap, city, country, telephoneNumber, 0, null);
 
             return account;
         }

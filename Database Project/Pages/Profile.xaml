@@ -23,11 +23,18 @@
         <TextBox x:Name="txtCountry" HorizontalAlignment="Left" Margin="143,208,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
         <TextBox x:Name="txtTelephoneNumber" HorizontalAlignment="Left" Margin="143,239,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
         <Label x:Name="lblUsername" Content="Placeholder" HorizontalAlignment="Left" Margin="24,10,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="22"/>
-        <Button x:Name="btnUpdate" Content="Update" HorizontalAlignment="Left" Margin="170,305,0,0" VerticalAlignment="Top" Width="66"/>
+        <Button x:Name="btnUpdate" Content="Update" HorizontalAlignment="Left" Margin="296,366,0,0" VerticalAlignment="Top" Width="66" Click="btnUpdate_Click"/>
         <Label x:Name="lblCredit" Content="" HorizontalAlignment="Left" Margin="143,270,0,0" VerticalAlignment="Top"/>
         <Label Content="Wishlist:" HorizontalAlignment="Left" Margin="296,49,0,0" VerticalAlignment="Top"/>
         <DataGrid x:Name="grdWishlist" Margin="296,75,54,189"/>
         <Label Content="Credit:" HorizontalAlignment="Left" Margin="24,270,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="txtCap" HorizontalAlignment="Left" Margin="143,146,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <Label x:Name="lblResponse" Content="" HorizontalAlignment="Left" Margin="367,363,0,0" VerticalAlignment="Top"/>
+        <Label Content="IBAN:" HorizontalAlignment="Left" Margin="24,301,0,0" VerticalAlignment="Top"/>
+        <Label Content="Bank name:" HorizontalAlignment="Left" Margin="24,332,0,0" VerticalAlignment="Top"/>
+        <Label Content="BIC/SWIFT:" HorizontalAlignment="Left" Margin="24,363,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtIBAN" HorizontalAlignment="Left" Margin="143,305,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="txtBankName" HorizontalAlignment="Left" Margin="143,336,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="txtBicswift" HorizontalAlignment="Left" Margin="143,367,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
     </Grid>
 </Page>

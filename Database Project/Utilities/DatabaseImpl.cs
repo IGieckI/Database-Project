@@ -252,8 +252,8 @@ namespace Database_Project.Utilities
                 command.Parameters.AddWithValue("@Email", user.Email);
                 command.Parameters.AddWithValue("@Password", user.Password);
                 command.Parameters.AddWithValue("@Street", user.Street);
-                command.Parameters.AddWithValue("@CivicNumber", user.CivicNumber);
-                command.Parameters.AddWithValue("@CAP", user.Cap);
+                command.Parameters.AddWithValue("@CivicNumber", user.CivicNumber is null ? DBNull.Value : user.CivicNumber);
+                command.Parameters.AddWithValue("@CAP", user.Cap is null ? DBNull.Value : user.Cap);
                 command.Parameters.AddWithValue("@City", user.City);
                 command.Parameters.AddWithValue("@Country", user.Country);
                 command.Parameters.AddWithValue("@TelephoneNumber", user.TelephoneNumber);
@@ -722,10 +722,44 @@ namespace Database_Project.Utilities
                 string country = reader.GetValue(7) is DBNull ? "" : reader.GetString(7);
                 string telephoneNumber = reader.GetValue(8) is DBNull ? "" : reader.GetString(8);
                 int credit = reader.GetInt32(9);
+                int? bankAccountID = reader.GetValue(10) is DBNull ? null : reader.GetInt32(10);
 
                 reader.Close();
 
-                return new Account(username, email, password, street, civicNumber, cap, city, country, telephoneNumber, credit);
+                return new Account(username, email, password, street, civicNumber, cap, city, country, telephoneNumber, credit, bankAccountID);
+            }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public BankAccount GetBankAccount(int bankAccountId)
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open();
+
+                SqlCommand command = new SqlCommand("SELECT * FROM Conti WHERE IDConto = @BankAccountId", connection);
+                command.Parameters.AddWithValue("@BankAccountId", bankAccountId);
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (!reader.HasRows)
+                {
+                    throw new Exception("Bank account not found");
+                }
+
+                reader.Read();
+
+                string IBAN = reader.GetString(1);
+                string bankName = reader.GetString(2);
+                string bicSwift = reader.GetString(3);
+
+                reader.Close();
+
+                BankAccount bankAccount = new(bankAccountId, IBAN, bankName, bicSwift);
+
+
+                return bankAccount;
             }
         }
 
@@ -754,7 +788,7 @@ namespace Database_Project.Utilities
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public void AddUserBankAccount(string username, string IBAN, string bankName, string BicSwift)
+        public void AddUserBankAccount(string username, BankAccount bankAccount)
         {
             using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
             {
@@ -763,15 +797,16 @@ namespace Database_Project.Utilities
 
                 try
                 {
-                    SqlCommand command = new SqlCommand("INSERT INTO Conti (IBAN, NomeDellaBanca, BIC_SWIFT) " +
-                        "VALUES (@IBAN, @BankName, @BicSwift)", connection);
-                    command.Parameters.AddWithValue("@IBAN", IBAN);
-                    command.Parameters.AddWithValue("@BankName", bankName);
-                    command.Parameters.AddWithValue("@BicSwift", BicSwift);
+                    SqlCommand command = new SqlCommand("INSERT INTO Conti (IBAN, NomeDellaBanca, BIC_SWIFT) VALUES (@IBAN, @BankName, @BicSwift);", connection);
+                    command.Transaction = transaction;
+                    command.Parameters.AddWithValue("@IBAN", bankAccount.IBAN);
+                    command.Parameters.AddWithValue("@BankName", bankAccount.BankName);
+                    command.Parameters.AddWithValue("@BicSwift", bankAccount.BIC_SWIFT);
                     command.ExecuteNonQuery();
 
-                    command = new SqlCommand("SELECT IDConto FROM Conti WHERE IBAN = @IBAN;");
-                    command.Parameters.AddWithValue("@IBAN", IBAN);
+                    command = new SqlCommand("SELECT IDConto FROM Conti WHERE IBAN = @IBAN;", connection);
+                    command.Transaction = transaction;
+                    command.Parameters.AddWithValue("@IBAN", bankAccount.IBAN);
                     SqlDataReader reader = command.ExecuteReader();
                     int accountId = -1;
                     while (reader.Read())
@@ -779,12 +814,15 @@ namespace Database_Project.Utilities
                         accountId = reader.GetInt32(0);
                     }
 
+                    reader.Close();
+
                     if (accountId < 0)
                     {
                         throw new Exception("Couldn't find any reference to the bank account.");
                     }
 
-                    command = new SqlCommand("UPDATE Utenti SET IDConto = @IDConto WHERE Username = @Username");
+                    command = new SqlCommand("UPDATE Utenti SET IDConto = @IDConto WHERE Username = @Username;", connection);
+                    command.Transaction = transaction;
                     command.Parameters.AddWithValue("@IDConto", accountId);
                     command.Parameters.AddWithValue("@Username", username);
                     command.ExecuteNonQuery();
@@ -797,6 +835,59 @@ namespace Database_Project.Utilities
                     throw new Exception(ex.Message);
                 }
             }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public void UpdateUserBankAccount(BankAccount bankAccount)
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open();
+
+                SqlCommand command = new SqlCommand("UPDATE Conti SET IBAN = @IBAN, NomeDellaBanca = @BankName, BIC_SWIFT = @BicSwift " +
+                        "WHERE IDConto = @BankAccountID", connection);
+                command.Parameters.AddWithValue("@IBAN", bankAccount.IBAN);
+                command.Parameters.AddWithValue("@BankName", bankAccount.BankName);
+                command.Parameters.AddWithValue("@BicSwift", bankAccount.BIC_SWIFT);
+                command.Parameters.AddWithValue("@BankAccountID", bankAccount.BankAccountID);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public void RemoveUserBankAccount(Account account)
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open();
+
+                SqlTransaction transaction = connection.BeginTransaction();
+
+                try
+                {
+                    SqlCommand command = new SqlCommand("UPDATE Utenti SET IDConto = NULL WHERE Username = @Username;", connection);
+                    command.Transaction = transaction;
+                    command.Parameters.AddWithValue("@Username", account.Username);
+                    command.ExecuteNonQuery();
+
+                    command = new SqlCommand("DELETE FROM Conti WHERE IDConto = @BankAccountId;", connection);
+                    command.Transaction = transaction;
+                    command.Parameters.AddWithValue("@BankAccountId", account.BankAccountID);
+                    command.ExecuteNonQuery();
+
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw new Exception(ex.Message);
+                }
+            }
+
         }
 
         /// <summary>

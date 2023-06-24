@@ -24,13 +24,34 @@ namespace Database_Project.Pages
     {
         private List<WishlistItem> _wishlist = new List<WishlistItem>();
         private Account _account;
+        private BankAccount _bankAccount;
         private readonly IDatabase _database = new DatabaseImpl();
 
         public Profile()
         {
             InitializeComponent();
 
-            _account = _database.GetUserAccount(MainWindow.Username);
+            _account = new Account("", "", "", "", null, null, "", "", "", 0, null);
+
+            try
+            {
+                _account = _database.GetUserAccount(MainWindow.Username);
+                _wishlist = _database.GetWishlist(MainWindow.Username);
+
+                if ( _account.BankAccountID != null )
+                {
+                    _bankAccount = _database.GetBankAccount(_account.BankAccountID.Value);
+
+                    txtIBAN.Text = _bankAccount.IBAN;
+                    txtBankName.Text = _bankAccount.BankName;
+                    txtBicswift.Text = _bankAccount.BIC_SWIFT;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                lblResponse.Content = ex.Message;
+            }
 
             lblUsername.Content = _account.Username;
             lblCredit.Content = _account.Credit;
@@ -42,9 +63,48 @@ namespace Database_Project.Pages
             txtCountry.Text = _account.Country;
             txtTelephoneNumber.Text = _account.TelephoneNumber.ToString();
 
-            _wishlist = _database.GetWishlist(MainWindow.Username);
             grdWishlist.ItemsSource = _wishlist;
             grdWishlist.Items.Refresh();
+        }
+
+        private void btnUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string email = txtEmail.Text;
+                string? street = txtStreet.Text;
+                int? civicNumber = txtCivicNumber.Text == "" ? null : Int32.Parse(txtCivicNumber.Text);
+                int? cap = txtCap.Text == "" ? null : Int32.Parse(txtCap.Text);
+                string? city = txtCity.Text;
+                string? country = txtCountry.Text;
+                string telephoneNumber = txtTelephoneNumber.Text;
+
+                _database.EditUserProfile(new Account(_account.Username, email, _account.Password, street, civicNumber, cap, city, country, telephoneNumber, _account.Credit, _account.BankAccountID));
+
+                if (txtIBAN.Text + txtBankName.Text + txtBicswift.Text != "")
+                {
+                    if (_account.BankAccountID is null)
+                    {
+                        _database.AddUserBankAccount(_account.Username, new BankAccount(-1, txtIBAN.Text, txtBankName.Text, txtBicswift.Text));
+                    }
+                    else
+                    {
+                        _database.UpdateUserBankAccount(new BankAccount(_account.BankAccountID.Value, txtIBAN.Text, txtBankName.Text, txtBicswift.Text));
+                    }                    
+                }
+                else if (_account.BankAccountID is not null)
+                {
+                    _database.RemoveUserBankAccount(_account);
+                }
+
+                _account = _database.GetUserAccount(_account.Username);
+
+                lblResponse.Content = "Profile updated successfully!";
+            }
+            catch (Exception ex)
+            {
+                lblResponse.Content = ex.Message;
+            }
         }
     }
 }

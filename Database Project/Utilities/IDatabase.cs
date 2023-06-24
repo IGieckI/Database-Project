@@ -189,6 +189,13 @@ namespace Database_Project.Utilities
         Account GetUserAccount(string username);
 
         /// <summary>
+        /// Get bank account's informations
+        /// </summary>
+        /// <param name="bankAccountId"> Id of the bank account </param>
+        /// <returns> A BankAccount object containing informations related informations </returns>
+        BankAccount GetBankAccount(int bankAccountId);
+
+        /// <summary>
         /// Create a coupon.
         /// </summary>
         /// <param name="username">User who create the coupon</param>
@@ -199,9 +206,19 @@ namespace Database_Project.Utilities
         /// Link a bank account to an user account.
         /// </summary>
         /// <param name="username">User's username</param>
-        /// <param name="IBAN">Bank account's IBAN</param>
-        /// <param name="bankName">Bank's name</param>
-        /// <param name="BicSwift">BIC/SWIFT code</param>
-        void AddUserBankAccount(string username, string IBAN, string bankName, string BicSwift);
+        /// <param name="bankAccount">Bank account informations</param>
+        void AddUserBankAccount(string username, BankAccount bankAccount);
+
+        /// <summary>
+        /// Update informations about bankAccounts.
+        /// </summary>
+        /// <param name="bankAccount">Bank account's informations</param>
+        void UpdateUserBankAccount(BankAccount bankAccount);
+
+        /// <summary>
+        /// Remove the bank account linked to the user account.
+        /// </summary>
+        /// <param name="account">User's account</param>
+        void RemoveUserBankAccount(Account account);
     }
 }
