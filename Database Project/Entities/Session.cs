@@ -20,7 +20,7 @@ namespace Database_Project.Entities
             Admin
         }
 
-        public static List<Detail> shoppingCart = new List<Detail>();
+        public static List<Detail> ShoppingCart = new List<Detail>();
 
         public static IDatabase Database = new DatabaseImpl();
     }
