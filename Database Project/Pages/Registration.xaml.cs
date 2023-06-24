@@ -16,6 +16,8 @@ using System.Windows.Shapes;
 using Database_Project.Entities;
 using System.Net;
 
+using static Database_Project.Entities.Session;
+
 namespace Database_Project.Pages
 {
     /// <summary>
@@ -23,16 +25,15 @@ namespace Database_Project.Pages
     /// </summary>
     public partial class Registration : Page
     {
-        private readonly IDatabase _database = new DatabaseImpl();
 
         public Registration()
         {
             InitializeComponent();
         }
 
-        private void rdbUser_Checked(object sender, RoutedEventArgs e)
+        private void rdbUser_Unchecked(object sender, RoutedEventArgs e)
         {
-
+            Clear();
         }
 
         private void rdbSeller_Checked(object sender, RoutedEventArgs e)
@@ -48,6 +49,8 @@ namespace Database_Project.Pages
             lblIban.Content = "IBAN:";
             lblBankName.Content = "Bank name:";
             lblBicswift.Content = "BIC/SWIFT:";
+
+            Clear();
         }
 
         private void rdbAdmin_Checked(object sender, RoutedEventArgs e)
@@ -61,6 +64,8 @@ namespace Database_Project.Pages
             txtIban.IsEnabled = false;
             txtBank.IsEnabled = false;
             txtBicswift.IsEnabled = false;
+
+            Clear();
         }
         private void rdbAdmin_Unchecked(object sender, RoutedEventArgs e)
         {
@@ -73,6 +78,8 @@ namespace Database_Project.Pages
             txtIban.IsEnabled = true;
             txtBank.IsEnabled = true;
             txtBicswift.IsEnabled = true;
+
+            Clear();
         }
 
         private void btnSubmit_Click(object sender, RoutedEventArgs e)
@@ -88,7 +95,7 @@ namespace Database_Project.Pages
                         return;
                     }
                     BankAccount? bankAccount = txtIban.Text == "" || txtBank.Text == "" || txtBicswift.Text == "" ? null : BuildBankAccount();
-                    registrationResult = _database.UserRegistration(BuildAccount(), bankAccount);
+                    registrationResult = Database.UserRegistration(BuildAccount(), bankAccount);
                 }
                 else if (rdbSeller.IsChecked == true)
                 {
@@ -98,7 +105,7 @@ namespace Database_Project.Pages
                         return;
                     }
 
-                    registrationResult = _database.SellerRegistration(BuildAccount(), BuildBankAccount());
+                    registrationResult = Database.SellerRegistration(BuildAccount(), BuildBankAccount());
                 }
                 else if (rdbAdmin.IsChecked == true)
                 {
@@ -108,25 +115,14 @@ namespace Database_Project.Pages
                         return;
                     }
 
-                    registrationResult = _database.AdminRegistration(BuildAccount());
+                    registrationResult = Database.AdminRegistration(BuildAccount());
                 }
 
                 lblResponse.Content = registrationResult ? "Registration completed!" : "Registration error, try choose another Username or check if (*) fields are filled.";
 
                 if (registrationResult)
                 {
-                    txtUsername.Clear();
-                    txtPassword.Clear();
-                    txtEmail.Clear();
-                    txtStreet.Clear();
-                    txtCivicNumber.Clear();
-                    txtCap.Clear();
-                    txtCity.Clear();
-                    txtCountry.Clear();
-                    txtTelephoneNumber.Clear();
-                    txtIban.Clear();
-                    txtBank.Clear();
-                    txtBicswift.Clear();
+                    Clear();
                 }
             }
             catch (Exception ex)
@@ -169,6 +165,25 @@ namespace Database_Project.Pages
             BankAccount bankAccount = new BankAccount(-1, IBAN, BankName, BIC_SWIFT);
 
             return bankAccount;
+        }
+
+        /// <summary>
+        /// Clear form filds
+        /// </summary>
+        private void Clear()
+        {
+            txtUsername.Text = "";
+            txtPassword.Clear();
+            txtEmail.Clear();
+            txtStreet.Clear();
+            txtCivicNumber.Clear();
+            txtCap.Clear();
+            txtCity.Clear();
+            txtCountry.Clear();
+            txtTelephoneNumber.Clear();
+            txtIban.Clear();
+            txtBank.Clear();
+            txtBicswift.Clear();
         }
     }
 }

@@ -4,6 +4,8 @@ using System.Windows;
 using System.Net;
 using System;
 
+using static Database_Project.Entities.Session;
+
 namespace Database_Project
 {
     /// <summary>
@@ -12,16 +14,6 @@ namespace Database_Project
     public partial class MainWindow : Window
     {
         private readonly IDatabase _database = new DatabaseImpl();
-
-        public static string Username = "";
-        public static LoginType Login = LoginType.None;
-        public enum LoginType
-        {
-            None,
-            User,
-            Seller,
-            Admin
-        }
 
         public MainWindow()
         {
@@ -83,12 +75,11 @@ namespace Database_Project
                         Username = txtUsername.Text;
                         loginSetup();
                         btnProfile.IsEnabled = true;
-                        btnProfile.IsEnabled = true;
                         break;
                     case LoginType.Seller:
                         Username = txtUsername.Text;
                         loginSetup();
-                        btnProfile.IsEnabled = true;
+                        btnAddOfferts.IsEnabled = true;
                         break;
                     case LoginType.Admin:
                         Username = txtUsername.Text;
@@ -147,6 +138,10 @@ namespace Database_Project
             rdbUser.IsEnabled = false;
             rdbSeller.IsEnabled = false;
             rdbAdmin.IsEnabled = false;
+
+            btnProfile.IsEnabled = false;
+            btnAddOfferts.IsEnabled = false;
+            btnAdministration.IsEnabled = false;
 
             lblUsername.Content = $"Welcome {Username}";
         }

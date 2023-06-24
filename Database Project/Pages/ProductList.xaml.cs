@@ -15,6 +15,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using static Database_Project.Entities.Session;
+
 namespace Database_Project.Pages
 {
     /// <summary>
@@ -22,7 +24,6 @@ namespace Database_Project.Pages
     /// </summary>
     public partial class ProductList : Page
     {
-        private readonly IDatabase _database = new DatabaseImpl();
         private List<Product> _productList = new List<Product>();
 
         public ProductList()
@@ -30,7 +31,7 @@ namespace Database_Project.Pages
             InitializeComponent();
 
             //initialize game's combobox
-            var games = _database.GetGames();
+            var games = Database.GetGames();
 
             foreach (var game in games)
             {
@@ -39,7 +40,7 @@ namespace Database_Project.Pages
             cmbGame.Items.Add("");
 
             //initialize raritie's combobox
-            var rarities = _database.GetRarities();
+            var rarities = Database.GetRarities();
 
             foreach(var rarity in rarities)
             {
@@ -53,7 +54,7 @@ namespace Database_Project.Pages
         {
             _productList.Clear();
 
-            _productList.AddRange(_database.GetProducts(txtSearch.Text, cmbRarity.Text, cmbGame.Text));
+            _productList.AddRange(Database.GetProducts(txtSearch.Text, cmbRarity.Text, cmbGame.Text));
 
             grdProducts.ItemsSource = _productList;
 
@@ -68,9 +69,9 @@ namespace Database_Project.Pages
         {
             try
             {
-                if (MainWindow.Login == MainWindow.LoginType.User && grdProducts.SelectedIndex != -1)
+                if (Login == LoginType.User && grdProducts.SelectedIndex != -1)
                 {
-                    _database.AddToWishlist(MainWindow.Username, _productList[grdProducts.SelectedIndex].ProductId, 1);
+                    Database.AddToWishlist(Username, _productList[grdProducts.SelectedIndex].ProductId, 1);
                     lblWishlistResult.Content = "Item added to your wishlist!";
                 }
             }

@@ -15,6 +15,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using static Database_Project.Entities.Session;
+
 namespace Database_Project.Pages
 {
     /// <summary>
@@ -22,14 +24,13 @@ namespace Database_Project.Pages
     /// </summary>
     public partial class Offerts : Page
     {
-        private readonly IDatabase _database = new DatabaseImpl();
         private List<Offert> _offertsList = new List<Offert>();
 
         public Offerts(Product product)
         {
             InitializeComponent();
 
-            _offertsList = _database.GetOfferts(product.ProductId);
+            _offertsList = Database.GetOfferts(product.ProductId);
             grdOfferts.ItemsSource = _offertsList;
             grdOfferts.Items.Refresh();
 

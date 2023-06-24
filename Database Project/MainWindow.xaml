@@ -11,6 +11,7 @@
             <ColumnDefinition Width="5*"/>
             <ColumnDefinition Width="27*"/>
         </Grid.ColumnDefinitions>
+        <Label x:Name="lblResult" Content="" HorizontalAlignment="Left" Margin="10,406,0,0" VerticalAlignment="Top"/>
         <Frame x:Name="frmPages" NavigationUIVisibility="Hidden" Margin="114,0,1,0" Grid.ColumnSpan="2" />
         <Button x:Name="btnProfile" Content="Profile" HorizontalAlignment="Left" VerticalAlignment="Top" Height="49" Width="109" Margin="5,49,0,0" Click="btnProfile_Click" IsEnabled="False"/>
         <Button x:Name="btnProducts" Content="Products" HorizontalAlignment="Left" VerticalAlignment="Top" Height="49" Width="109" Margin="5,0,0,0" Click="btnProducts_Click"/>
@@ -24,8 +25,7 @@
         <Button x:Name="btnRegister" Content="Register" HorizontalAlignment="Left" Margin="5,147,0,0" VerticalAlignment="Top" Height="49" Width="109" Click="btnRegister_Click"/>
         <Button x:Name="btnAdministration" Content="Administration" HorizontalAlignment="Left" Margin="5,196,0,0" VerticalAlignment="Top" Height="49" Width="109" Click="btnAdministration_Click" IsEnabled="False"/>
         <Label x:Name="lblPassword" Content="Password" HorizontalAlignment="Left" Margin="7,341,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="lblUsername" Content="Username" HorizontalAlignment="Left" Margin="7,303,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="lblResult" Content="" HorizontalAlignment="Left" Margin="10,406,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="lblUsername" Content="Username" HorizontalAlignment="Left" Margin="7,303,0,0" VerticalAlignment="Top"/>        
         <Button x:Name="btnLogout" Content="Logout" HorizontalAlignment="Left" Margin="10,386,0,0" VerticalAlignment="Top" IsDefault="True" Width="91" Visibility="Hidden" Click="btnLogout_Click"/>
     </Grid>
 </Window>

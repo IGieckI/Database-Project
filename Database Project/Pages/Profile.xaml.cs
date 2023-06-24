@@ -15,6 +15,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using static Database_Project.Entities.Session;
+
 namespace Database_Project.Pages
 {
     /// <summary>
@@ -25,7 +27,6 @@ namespace Database_Project.Pages
         private List<WishlistItem> _wishlist = new List<WishlistItem>();
         private Account _account;
         private BankAccount _bankAccount;
-        private readonly IDatabase _database = new DatabaseImpl();
 
         public Profile()
         {
@@ -35,12 +36,12 @@ namespace Database_Project.Pages
 
             try
             {
-                _account = _database.GetUserAccount(MainWindow.Username);
-                _wishlist = _database.GetWishlist(MainWindow.Username);
+                _account = Database.GetUserAccount(Username);
+                _wishlist = Database.GetWishlist(Username);
 
                 if ( _account.BankAccountID != null )
                 {
-                    _bankAccount = _database.GetBankAccount(_account.BankAccountID.Value);
+                    _bankAccount = Database.GetBankAccount(_account.BankAccountID.Value);
 
                     txtIBAN.Text = _bankAccount.IBAN;
                     txtBankName.Text = _bankAccount.BankName;
@@ -79,25 +80,25 @@ namespace Database_Project.Pages
                 string? country = txtCountry.Text;
                 string telephoneNumber = txtTelephoneNumber.Text;
 
-                _database.EditUserProfile(new Account(_account.Username, email, _account.Password, street, civicNumber, cap, city, country, telephoneNumber, _account.Credit, _account.BankAccountID));
+                Database.EditUserProfile(new Account(_account.Username, email, _account.Password, street, civicNumber, cap, city, country, telephoneNumber, _account.Credit, _account.BankAccountID));
 
                 if (txtIBAN.Text + txtBankName.Text + txtBicswift.Text != "")
                 {
                     if (_account.BankAccountID is null)
                     {
-                        _database.AddUserBankAccount(_account.Username, new BankAccount(-1, txtIBAN.Text, txtBankName.Text, txtBicswift.Text));
+                        Database.AddUserBankAccount(_account.Username, new BankAccount(-1, txtIBAN.Text, txtBankName.Text, txtBicswift.Text));
                     }
                     else
                     {
-                        _database.UpdateUserBankAccount(new BankAccount(_account.BankAccountID.Value, txtIBAN.Text, txtBankName.Text, txtBicswift.Text));
+                        Database.UpdateUserBankAccount(new BankAccount(_account.BankAccountID.Value, txtIBAN.Text, txtBankName.Text, txtBicswift.Text));
                     }                    
                 }
                 else if (_account.BankAccountID is not null)
                 {
-                    _database.RemoveUserBankAccount(_account);
+                    Database.RemoveUserBankAccount(_account);
                 }
 
-                _account = _database.GetUserAccount(_account.Username);
+                _account = Database.GetUserAccount(_account.Username);
 
                 lblResponse.Content = "Profile updated successfully!";
             }

@@ -14,6 +14,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using static Database_Project.Entities.Session;
+
 namespace Database_Project.Pages
 {
     /// <summary>
@@ -21,7 +23,6 @@ namespace Database_Project.Pages
     /// </summary>
     public partial class Administration : Page
     {
-        private readonly IDatabase _database = new DatabaseImpl();
 
         public Administration()
         {
@@ -42,9 +43,9 @@ namespace Database_Project.Pages
             List<string> gameList = new List<string>();
             List<string> expansionList = new List<string>();
 
-            rarityList.AddRange(_database.GetRarities());
-            gameList.AddRange(_database.GetGames());
-            expansionList.AddRange(_database.GetExpansions());
+            rarityList.AddRange(Database.GetRarities());
+            gameList.AddRange(Database.GetGames());
+            expansionList.AddRange(Database.GetExpansions());
 
             cmbRarity.ItemsSource = rarityList;
             cmbGame.ItemsSource = gameList;
@@ -63,7 +64,7 @@ namespace Database_Project.Pages
         {
             try
             {
-                _database.AddGame(txtGame.Text);
+                Database.AddGame(txtGame.Text);
                 lblGame.Content = "New game added to the database!";
             }
             catch (Exception ex)
@@ -78,7 +79,7 @@ namespace Database_Project.Pages
         {
             try
             {
-                _database.AddRarity(txtRarity.Text);
+                Database.AddRarity(txtRarity.Text);
                 lblRarity.Content = "New rarity added to the database!";
             }
             catch (Exception ex)
@@ -93,7 +94,7 @@ namespace Database_Project.Pages
         {
             try
             {
-                _database.AddExpansion(txtExpansion.Text);
+                Database.AddExpansion(txtExpansion.Text);
                 lblExpansion.Content = "New expansion added to the database!";
             }
             catch (Exception ex)
@@ -108,7 +109,7 @@ namespace Database_Project.Pages
         {
             try
             {
-                _database.AddCondition(txtCondition.Text);
+                Database.AddCondition(txtCondition.Text);
                 lblCondition.Content = "New condition added to the database!";
             }
             catch (Exception ex)
@@ -123,7 +124,7 @@ namespace Database_Project.Pages
         {
             try
             {
-                _database.AddProduct(txtProductName.Text, txtDescription.Text, cmbRarity.Text, cmbGame.Text, cmbExpansion.Text);
+                Database.AddProduct(txtProductName.Text, txtDescription.Text, cmbRarity.Text, cmbGame.Text, cmbExpansion.Text);
                 lblProduct.Content = "New Product added to the database!";
             }
             catch(Exception ex)

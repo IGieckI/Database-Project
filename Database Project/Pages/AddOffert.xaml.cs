@@ -14,6 +14,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using static Database_Project.Entities.Session;
+
 namespace Database_Project.Pages
 {
     /// <summary>
@@ -21,14 +23,12 @@ namespace Database_Project.Pages
     /// </summary>
     public partial class AddOffert : Page
     {
-        private readonly IDatabase _database = new DatabaseImpl();
-
         public AddOffert()
         {
             InitializeComponent();
 
             List<string> conditionsList = new List<string>();
-            conditionsList.AddRange(_database.GetConditions());
+            conditionsList.AddRange(Database.GetConditions());
             cmbConditions.ItemsSource = conditionsList;
             cmbConditions.Items.Refresh();
             cmbConditions.SelectedIndex = 0;
@@ -38,7 +38,7 @@ namespace Database_Project.Pages
         {
             try
             {
-                _database.AddOffert(MainWindow.Username, float.Parse(txtPrice.Text), int.Parse(txtQuantity.Text), txtLanguage.Text,
+                Database.AddOffert(Username, float.Parse(txtPrice.Text), int.Parse(txtQuantity.Text), txtLanguage.Text,
                    txtxLocation.Text, cmbConditions.Text, int.Parse(txtProductId.Text));
 
                 lblResult.Content = "Offert add to the database!";

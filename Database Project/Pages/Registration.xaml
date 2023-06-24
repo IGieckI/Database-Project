@@ -22,7 +22,7 @@
         <TextBox x:Name="txtCountry" HorizontalAlignment="Left" Margin="122,286,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
         <TextBox x:Name="txtTelephoneNumber" HorizontalAlignment="Left" Margin="122,317,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
         <Label Content="Choose account type:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <RadioButton x:Name="rdbUser" Content="User" HorizontalAlignment="Left" Margin="10,37,0,0" VerticalAlignment="Top" GroupName="UserRegistrationType" IsChecked="True" Checked="rdbUser_Checked"/>
+        <RadioButton x:Name="rdbUser" Content="User" HorizontalAlignment="Left" Margin="10,37,0,0" VerticalAlignment="Top" GroupName="UserRegistrationType" IsChecked="True" Unchecked="rdbUser_Unchecked"/>
         <RadioButton x:Name="rdbSeller" Content="Seller" HorizontalAlignment="Left" Margin="58,37,0,0" VerticalAlignment="Top" GroupName="UserRegistrationType" Checked="rdbSeller_Checked" Unchecked="rdbSeller_Unchecked"/>
         <RadioButton x:Name="rdbAdmin" Content="Admin" HorizontalAlignment="Left" Margin="111,37,0,0" VerticalAlignment="Top" GroupName="UserRegistrationType" Checked="rdbAdmin_Checked" Unchecked="rdbAdmin_Unchecked"/>
         <Label Content="Username*:" HorizontalAlignment="Left" Margin="10,65,0,0" VerticalAlignment="Top"/>
