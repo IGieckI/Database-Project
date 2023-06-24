@@ -10,7 +10,7 @@ namespace Database_Project.Utilities
      /// <summary>
      /// Class which provide a connection to the database 
      /// </summary>
-    internal interface IDatabase
+    public interface IDatabase
     {
         /// <summary>
         /// Register a new User.

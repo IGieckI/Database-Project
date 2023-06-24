@@ -71,7 +71,7 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM Venditori WHERE Username = @Username OR Email = @Email", connection);
+                SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM Venditori WHERE Username = @Username OR Email = @Email;", connection);
                 command.Parameters.AddWithValue("@Username", account.Username);
                 command.Parameters.AddWithValue("@Email", account.Email);
                 int count = (int)command.ExecuteScalar();
@@ -85,13 +85,15 @@ namespace Database_Project.Utilities
 
                 try
                 {
-                    command = new SqlCommand("INSERT INTO Conti (IBAN, NomeDellaBanca, BIC_SWIFT) VALUES()");
+                    command = new SqlCommand("INSERT INTO Conti (IBAN, NomeDellaBanca, BIC_SWIFT) VALUES(@IBAN, @BankName, @BIC_SWIFT);", connection);
+                    command.Transaction = transaction;
                     command.Parameters.AddWithValue("@IBAN", bankAccount.IBAN);
-                    command.Parameters.AddWithValue("@NomeDellaBanca", bankAccount.BankName);
+                    command.Parameters.AddWithValue("@BankName", bankAccount.BankName);
                     command.Parameters.AddWithValue("@BIC_SWIFT", bankAccount.BIC_SWIFT);
                     command.ExecuteNonQuery();
 
-                    command = new SqlCommand("SELECT IDConto FROM Conti WHERE IBAN = @IBAN;");
+                    command = new SqlCommand("SELECT IDConto FROM Conti WHERE IBAN = @IBAN;", connection);
+                    command.Transaction = transaction;
                     command.Parameters.AddWithValue("@IBAN", bankAccount.IBAN);
                     SqlDataReader reader = command.ExecuteReader();
                     int accountId = -1;
@@ -100,12 +102,15 @@ namespace Database_Project.Utilities
                         accountId = reader.GetInt32(0);
                     }
 
+                    reader.Close();
+
                     if (accountId < 0)
                     {
                         return false;
                     }
 
-                    command = new SqlCommand("INSERT INTO Venditori (Username, Password, Email, Paese, IDConto) VALUES (@Username, @Password, @Email, @Country, @BankAccountID)", connection);
+                    command = new SqlCommand("INSERT INTO Venditori (Username, Password, Email, Paese, IDConto) VALUES (@Username, @Password, @Email, @Country, @BankAccountID);", connection);
+                    command.Transaction = transaction;
                     command.Parameters.AddWithValue("@Username", account.Username);
                     command.Parameters.AddWithValue("@Password", PasswordManager.EncryptPassword(account.Password));
                     command.Parameters.AddWithValue("@Email", account.Password);
@@ -190,7 +195,7 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                SqlCommand command = new SqlCommand("SELECT * FROM Venditori WHERE Username == @Username;", connection);
+                SqlCommand command = new SqlCommand("SELECT * FROM Venditori WHERE Username = @Username;", connection);
                 command.Parameters.AddWithValue("@Username", username);
                 SqlDataReader reader = command.ExecuteReader();
 
