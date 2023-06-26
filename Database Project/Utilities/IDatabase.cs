@@ -75,6 +75,13 @@ namespace Database_Project.Utilities
         List<Product> GetProducts(string productName = "", string rarity = "", string game = "");
 
         /// <summary>
+        /// Retrive the product if exist
+        /// </summary>
+        /// <param name="productId">The id of the product to search</param>
+        /// <returns>A product if it is found, null otherwise</returns>
+        Product? GetProduct(int productId);
+
+        /// <summary>
         /// Retrive every rarity from the database
         /// </summary>
         /// <returns>A list of rarities names</returns>
@@ -97,6 +104,13 @@ namespace Database_Project.Utilities
         /// </summary>
         /// <returns>A list the conditions names</returns>
         List<string> GetConditions();
+
+        /// <summary>
+        /// Retrieve the coupon with the code given
+        /// </summary>
+        /// <param name="couponCode">The coupon code</param>
+        /// <returns>A coupon representing the coupon object, null if not present in the DB</returns>
+        Coupon? GetCoupon(string couponCode);
 
         /// <summary>
         /// A Seller adding an offert.
@@ -153,11 +167,10 @@ namespace Database_Project.Utilities
         /// Completing a buy operation
         /// </summary>
         /// <param name="userUsername">Buyer's username</param>
-        /// <param name="sellerUsername">Seller's username</param>
         /// <param name="feedback">Buyer's feedback</param>
         /// <param name="details">Details of buyer's purchases</param>
         /// <param name="coupons">Codici coupon utilizzati</param>
-        void Buy(string userUsername, string sellerUsername, Feedback feedback, List<Detail> details, List<string> coupons);
+        void Buy(string userUsername, Feedback feedback, List<Detail> details, List<Coupon> coupons);
 
         /// <summary>
         /// Add a product to an user wishlist.
@@ -182,6 +195,13 @@ namespace Database_Project.Utilities
         List<Offert> GetOfferts(int productId);
 
         /// <summary>
+        /// Remove a quantity from an offert and return if the operation succeeded
+        /// </summary>
+        /// <param name="offertId">Id of the taken offert</param>
+        /// <returns>True if the offert is aviable, false otherwise</returns>
+        bool AddToCart(int offertId);
+
+        /// <summary>
         /// Get user's account informations
         /// </summary>
         /// <param name="username">User's username</param>
@@ -201,6 +221,19 @@ namespace Database_Project.Utilities
         /// <param name="username">User who create the coupon</param>
         /// <param name="value">Value of the value of the coupon</param>
         void CreateCoupon(string username, int value);
+
+        /// <summary>
+        /// Check a coupon.
+        /// </summary>
+        /// <param name="couponCode">Code of the Coupon to check</param>
+        bool CheckCoupon(string couponCode);
+
+        /// <summary>
+        /// Use a coupon.
+        /// </summary>
+        /// <param name="couponCode">Code of the Coupon to check</param>
+        /// <param name="username">Username of the user who used the coupon</param>
+        void UseCoupon(string couponCode, string user);
 
         /// <summary>
         /// Link a bank account to an user account.

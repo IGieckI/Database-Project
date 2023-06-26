@@ -113,8 +113,8 @@ namespace Database_Project.Utilities
                     command.Transaction = transaction;
                     command.Parameters.AddWithValue("@Username", account.Username);
                     command.Parameters.AddWithValue("@Password", PasswordManager.EncryptPassword(account.Password));
-                    command.Parameters.AddWithValue("@Email", account.Password);
-                    command.Parameters.AddWithValue("@Country", account.Password);
+                    command.Parameters.AddWithValue("@Email", account.Email);
+                    command.Parameters.AddWithValue("@Country", account.Country);
                     command.Parameters.AddWithValue("@BankAccountID", accountId);
                     command.ExecuteNonQuery();
 
@@ -318,6 +318,41 @@ namespace Database_Project.Utilities
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
+        public Product? GetProduct(int productId)
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open();
+
+                SqlCommand command = new SqlCommand("SELECT * FROM Prodotti WHERE IDProdotto = @ProductId;", connection);
+                command.Parameters.AddWithValue("@ProductId", productId);
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (!reader.HasRows)
+                {
+                    return null;
+                }
+
+                reader.Read();
+
+                int id = reader.GetInt32(0);
+                string name = reader.GetString(1);
+                DateTime date = reader.GetDateTime(2);
+                string description = reader.GetString(3);
+                string rarita = reader.GetString(4);
+                string gioco = reader.GetString(5);
+                string espansione = reader.GetValue(6) is DBNull ? "" : reader.GetString(6);
+
+                reader.Close();
+
+                return new Product(id, name, date, description, rarita, gioco, espansione);
+            }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
         public List<string> GetRarities()
         {
             using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
@@ -412,6 +447,34 @@ namespace Database_Project.Utilities
                 reader.Close();
 
                 return games;
+            }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public Coupon? GetCoupon(string couponCode)
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open(); ;
+
+                SqlCommand command = new SqlCommand("SELECT * FROM Coupon;", connection);
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (!reader.HasRows)
+                    return null;
+
+                reader.Read();
+
+                DateTime date = reader.GetDateTime(1);
+                decimal value = reader.GetDecimal(2);
+                string userGenerator = reader.GetValue(3) is null ? "" : reader.GetString(3);
+                string userUtilizer = reader.GetValue(4) is null ? "" : reader.GetString(4);
+
+                reader.Close();
+
+                return new Coupon(couponCode, date, value, userGenerator, userUtilizer);
             }
         }
 
@@ -542,7 +605,7 @@ namespace Database_Project.Utilities
         /// <summary>
         /// <inheritdoc/>
         /// </summary>
-        public void Buy(string userUsername, string sellerUsername, Feedback feedback, List<Detail> details, List<string> coupons)
+        public void Buy(string userUsername, Feedback feedback, List<Detail> details, List<Coupon> coupons)
         {
             using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
             {
@@ -553,27 +616,39 @@ namespace Database_Project.Utilities
 
                 try
                 {
-                    command = new SqlCommand("INSERT INTO Vendite (Data, Aquirente, Venditore, Feedback) OUTPUT IDVendita " +
-                        "VALUES (@Date, @Buyer, @Seller, @Feedback)");
-                    DateTime currDate = DateTime.Now;
-                    command.Parameters.AddWithValue("@Date", currDate);
+                    command = new SqlCommand("INSERT INTO Vendite (Aquirente, Feedback) OUTPUT IDVendita " +
+                        "VALUES (@Buyer, @Feedback);", connection);
+                    command.Transaction = transaction;
                     command.Parameters.AddWithValue("@Buyer", userUsername);
-                    command.Parameters.AddWithValue("@Seller", sellerUsername);
                     command.Parameters.AddWithValue("@Feedback", feedback.FeedbackId);
                     int idVendita = (int)command.ExecuteScalar();
 
                     List<int> detailsIDs = new List<int>();
+                    decimal totalCost = 0;
 
                     foreach (Detail detail in details)
                     {
                         command = new SqlCommand("INSERT INTO Dettagli (Prezzo, Quantita, IDOfferta, IDVendita) OUTPUT IDDettaglio" +
-                        "VALUES (@Price, @Quantity, @OffertID, @SellID)", connection);
+                        "VALUES (@Price, @Quantity, @OffertID, @SellID);", connection);
+                        command.Transaction = transaction;
                         command.Parameters.AddWithValue("@Price", detail.Price);
                         command.Parameters.AddWithValue("@Quantity", detail.Quantity);
                         command.Parameters.AddWithValue("@OffertID", detail.OffertId);
                         command.Parameters.AddWithValue("@SellID", idVendita);
                         detailsIDs.Add((int)command.ExecuteScalar());
+
+                        totalCost += detail.Price * detail.Quantity;
                     }
+
+                    foreach (Coupon coupon in coupons)
+                    {
+                        totalCost -= coupon.Value;
+                    }
+
+                    command = new SqlCommand("UPDATE Utenti SET Conto = Conto - @TotalCost;", connection);
+                    command.Transaction = transaction;
+                    command.Parameters.AddWithValue("@TotalCost", totalCost);
+                    command.ExecuteNonQuery();
 
                     transaction.Commit();
                 }
@@ -673,7 +748,7 @@ namespace Database_Project.Utilities
             {
                 connection.Open();
 
-                SqlCommand command = new SqlCommand("SELECT * FROM Offerte WHERE Prodotto = @ProductID", connection);
+                SqlCommand command = new SqlCommand("SELECT * FROM Offerte WHERE Prodotto = @ProductID;", connection);
                 command.Parameters.AddWithValue("@ProductID", productId);
                 SqlDataReader reader = command.ExecuteReader();
 
@@ -682,19 +757,80 @@ namespace Database_Project.Utilities
                 while (reader.Read())
                 {
                     int id = reader.GetInt32(0);
-                    float price = reader.GetFloat(1);
+                    decimal price = reader.GetDecimal(1);
                     int quantity = reader.GetInt32(2);
-                    string conditions = reader.GetString(3);
-                    string language = reader.GetString(4);
-                    string location = reader.GetString(5);
-                    int ProductId = reader.GetInt32(6);
+                    string language = reader.GetString(3);
+                    string location = reader.GetString(4);
+                    string condition = reader.GetString(5);
+                    string sellerUsername = reader.GetString(7);
 
-                    offerts.Append(new Offert(id, price, quantity, conditions, language, location, ProductId));
+                    offerts.Add(new Offert(id, price, quantity, condition, language, location, productId, sellerUsername));
                 }
 
                 reader.Close();
 
                 return offerts;
+            }
+        }
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public bool AddToCart(int offertId)
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open();
+                SqlTransaction transaction = connection.BeginTransaction();
+
+                try
+                {
+
+                    SqlCommand command = new SqlCommand("SELECT * FROM Offerte WHERE IDOfferta = @OffertId;", connection);
+                    command.Transaction = transaction;
+                    command.Parameters.AddWithValue("@OffertId", offertId);
+                    SqlDataReader reader = command.ExecuteReader();
+
+                    if (!reader.HasRows)
+                    {
+                        return false;
+                    }
+
+                    reader.Read();
+
+                    int id = reader.GetInt32(0);
+                    decimal price = reader.GetDecimal(1);
+                    int quantity = reader.GetInt32(2);
+                    string language = reader.GetString(3);
+                    string location = reader.GetString(4);
+                    string condition = reader.GetString(5);
+                    string sellerUsername = reader.GetString(7);
+                    
+                    reader.Close();
+
+                    if (quantity == 1)
+                    {
+                        command = new SqlCommand("DELETE FROM Offerte WHERE IDOfferta = @OffertId;", connection);
+                        command.Transaction = transaction;
+                        command.Parameters.AddWithValue("@OffertId", offertId);
+                        command.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        command = new SqlCommand("UPDATE Offerte SET Quantita = Quantita - 1 WHERE IDOfferta = @OffertId;", connection);
+                        command.Transaction = transaction;
+                        command.Parameters.AddWithValue("@OffertId", offertId);
+                        command.ExecuteNonQuery();
+                    }
+
+                    transaction.Commit();
+                }
+                catch(Exception ex)
+                {
+                    transaction.Rollback();
+                    throw new Exception(ex.Message);
+                }                
+
+                return true;
             }
         }
 
@@ -720,7 +856,7 @@ namespace Database_Project.Utilities
 
                 string email = reader.GetString(1);
                 string password = reader.GetString(2);
-                string street = reader.GetValue(3) is null ? "" : reader.GetString(3);
+                string street = reader.GetValue(3) is DBNull ? "" : reader.GetString(3);
                 int? civicNumber = reader.GetValue(4) is DBNull ? null : reader.GetInt32(4);
                 int? cap = reader.GetValue(5) is DBNull ? null : reader.GetInt32(5);
                 string city = reader.GetValue(6) is DBNull ? "" : reader.GetString(6);
@@ -786,6 +922,42 @@ namespace Database_Project.Utilities
                 command.Parameters.AddWithValue("@ExpireDate", expireDate);
                 command.Parameters.AddWithValue("@Value", value);
                 command.Parameters.AddWithValue("@Username", username);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public bool CheckCoupon(string couponCode)
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open();
+
+                SqlCommand command = new SqlCommand("SELECT COUNT(*) Coupon WHERE CodiceCoupon = @CouponCode AND DataDiScadenza <= GETDATE() AND UsernameUtilizzatore IS NULL;", connection);
+                command.Parameters.AddWithValue("@CouponCode", couponCode);
+                if ((int)command.ExecuteScalar() > 0)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// <inheritdoc/>
+        /// </summary>
+        public void UseCoupon(string couponCode, string user)
+        {
+            using (SqlConnection connection = new SqlConnection(CONNECTION_STRING))
+            {
+                connection.Open();
+
+                SqlCommand command = new SqlCommand("UPDATE Coupon SET UsernameUtilizzatore = @User WHERE CodiceCoupon = @CouponCode;", connection);
+                command.Parameters.AddWithValue("@CouponCode", couponCode);
+                command.Parameters.AddWithValue("@User", user);
                 command.ExecuteNonQuery();
             }
         }
