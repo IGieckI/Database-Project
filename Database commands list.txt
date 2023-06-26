@@ -13,7 +13,7 @@ CREATE TABLE Conti (
      BIC_SWIFT VARCHAR(11) NOT NULL);
 
 CREATE TABLE Utenti (
-     Username VARCHAR(15) PRIMARY KEY NOT NULL,
+     Username VARCHAR(20) PRIMARY KEY NOT NULL,
      Email VARCHAR(30) NOT NULL,
      Password VARCHAR(100) NOT NULL,
      Via VARCHAR(20),
@@ -21,7 +21,7 @@ CREATE TABLE Utenti (
 	 CAP INT,
 	 Citta VARCHAR(30),
 	 Paese VARCHAR(30),
-     NumeroDiTelefono VARCHAR(15),
+     NumeroDiTelefono VARCHAR(20),
      Credito INT DEFAULT 0 NOT NULL,
 	 IDConto INT,
 	 FOREIGN KEY (IDConto) REFERENCES Conti(IDConto),
@@ -30,17 +30,17 @@ CREATE TABLE Utenti (
 	 CHECK (Credito >= 0));
 
 CREATE TABLE Venditori (
-     Username VARCHAR(15) PRIMARY KEY NOT NULL,
+     Username VARCHAR(20) PRIMARY KEY NOT NULL,
      Email VARCHAR(30) NOT NULL,
      Password VARCHAR(100) NOT NULL,
      Paese VARCHAR(25) NOT NULL,
-     DataDiRegistrazione DATE NOT NULL,
+     DataDiRegistrazione DATE DEFAULT GETDATE() NOT NULL,
 	 IDConto INT NOT NULL,
 	 FOREIGN KEY (IDConto) REFERENCES Conti(IDConto),
 	 UNIQUE(Email));
 
 CREATE TABLE Admin (
-     Username VARCHAR(15) PRIMARY KEY NOT NULL,
+     Username VARCHAR(20) PRIMARY KEY NOT NULL,
      Email VARCHAR(30) NOT NULL,
      Password VARCHAR(100) NOT NULL,
      DataDiScadenza DATE DEFAULT GETDATE(),
@@ -50,13 +50,13 @@ CREATE TABLE Coupon (
      CodiceCoupon VARCHAR(10) PRIMARY KEY,
      DataDiScadenza DATE NOT NULL,
      Valore INT NOT NULL,
-	 UsernameGeneratore VARCHAR(15),
-	 UsernameUtilizzatore VARCHAR(15),
+	 UsernameGeneratore VARCHAR(20),
+	 UsernameUtilizzatore VARCHAR(20),
 	 FOREIGN KEY (UsernameGeneratore) REFERENCES Utenti(Username),
 	 FOREIGN KEY (UsernameUtilizzatore) REFERENCES Utenti(Username));
 
 CREATE TABLE Rarita (
-     Nome VARCHAR(15) PRIMARY KEY NOT NULL);
+     Nome VARCHAR(20) PRIMARY KEY NOT NULL);
 
 CREATE TABLE Giochi (
      Nome VARCHAR(20) PRIMARY KEY NOT NULL);
@@ -67,10 +67,10 @@ CREATE TABLE Espansioni (
 
 CREATE TABLE Prodotti (
      IDProdotto INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
-     Nome VARCHAR(30) NOT NULL,
+     Nome VARCHAR(50) NOT NULL,
      DataDiRilascio DATE DEFAULT GETDATE() NOT NULL,
-     Descrizione VARCHAR(100) NOT NULL,
-	 Rarita VARCHAR(15) NOT NULL,
+     Descrizione VARCHAR(600) NOT NULL,
+	 Rarita VARCHAR(20) NOT NULL,
 	 Gioco VARCHAR(20) NOT NULL,
 	 Espansione VARCHAR(40),
 	 FOREIGN KEY (Rarita) REFERENCES Rarita(Nome),
@@ -78,7 +78,7 @@ CREATE TABLE Prodotti (
 	 FOREIGN KEY (Espansione) REFERENCES Espansioni(Nome));
 
 CREATE TABLE Wishlist(
-	Username VARCHAR(15),
+	Username VARCHAR(20),
 	IDProdotto INT,
 	Quantita INT,
 	FOREIGN KEY (Username) REFERENCES Utenti(Username),
@@ -87,17 +87,17 @@ CREATE TABLE Wishlist(
 	CHECK (Quantita > 0));
 
 CREATE TABLE Condizioni(
-	Nome VARCHAR(15) PRIMARY KEY NOT NULL);
+	Nome VARCHAR(20) PRIMARY KEY NOT NULL);
 
 CREATE TABLE Offerte (
      IDOfferta INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
      Prezzo MONEY NOT NULL,
      Quantita INT NOT NULL,
-     Lingua VARCHAR(3) NOT NULL,
-     Locazione VARCHAR(20) NOT NULL,
-     Condizione VARCHAR(15),
+     Lingua VARCHAR(25) NOT NULL,
+     Locazione VARCHAR(40) NOT NULL,
+     Condizione VARCHAR(20),
 	 Prodotto INT NOT NULL,     
-	 UsernameVenditore VARCHAR(15) NOT NULL,
+	 UsernameVenditore VARCHAR(20) NOT NULL,
 
 	 FOREIGN KEY (UsernameVenditore) REFERENCES Venditori(Username),
 	 FOREIGN KEY (Condizione) REFERENCES Condizioni(Nome),
@@ -109,17 +109,15 @@ CREATE TABLE Feedback (
      IDFeedback INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
      Testo VARCHAR(100) NOT NULL,
      Voto INT NOT NULL,
-	 Utente VARCHAR(15),
+	 Utente VARCHAR(20),
 	 FOREIGN KEY (Utente) REFERENCES Utenti(Username),
 	 CHECK(Voto >= 0 AND Voto <= 10));
 
 CREATE TABLE Vendite (
      IDVendita INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
      Data DATETIME DEFAULT GETDATE() NOT NULL,
-	 Aquirente VARCHAR(15) NOT NULL,
-	 Venditore VARCHAR(15) NOT NULL,
+	 Aquirente VARCHAR(20) NOT NULL,
 	 Feedback INT NOT NULL,
-	 FOREIGN KEY (Venditore) REFERENCES Venditori(Username),
 	 FOREIGN KEY (Aquirente) REFERENCES Utenti(Username),
 	 FOREIGN KEY (Feedback) REFERENCES Feedback(IDFeedback));
 
@@ -134,6 +132,19 @@ CREATE TABLE Dettagli (
 	 CHECK(Quantita > 0),
 	 CHECK(Prezzo >= 0));
 
+--Dati di testing di input
+
+INSERT INTO Admin VALUES('admin', 'admin@mail.com', 'uM3UCdiKT4jpeWLKlJPfesUPHfxg5iQfi2AfJzu0pe4=', '2023-06-25');
+
+INSERT INTO Utenti(Username, Email, Password, Credito) VALUES('user', 'user@mail.com', 'uM3UCdiKT4jpeWLKlJPfesUPHfxg5iQfi2AfJzu0pe4=', 0);
+
+INSERT INTO Conti(IBAN, NomeDellaBanca, BIC_SWIFT) VALUES('1234567891234567          ', 'Bank', '12345678');
+INSERT INTO Conti(IBAN, NomeDellaBanca, BIC_SWIFT) VALUES('1234567891234568          ', 'Bank2', '12345679');
+INSERT INTO Conti(IBAN, NomeDellaBanca, BIC_SWIFT) VALUES('1234567891234569          ', 'Bank', '12345670');
+
+INSERT INTO Venditori VALUES('seller', 'seller@mail.com', 'uM3UCdiKT4jpeWLKlJPfesUPHfxg5iQfi2AfJzu0pe4=', 'Italia', '2023-06-25', 1);
+INSERT INTO Venditori VALUES('seller2', 'seller2@mail.com', 'uM3UCdiKT4jpeWLKlJPfesUPHfxg5iQfi2AfJzu0pe4=', 'Italia', '2023-06-25', 2);
+INSERT INTO Venditori VALUES('seller3', 'seller3@mail.com', 'uM3UCdiKT4jpeWLKlJPfesUPHfxg5iQfi2AfJzu0pe4=', 'Italia', '2023-06-25', 3);
 
 INSERT INTO Condizioni VALUES ('Perfetto'), ('Molto buono'), ('Buono'), ('Rovinato'), ('Molto rovinato');
 
@@ -141,4 +152,55 @@ INSERT INTO Rarita VALUES ('Comune'), ('Rara'), ('Super Rara'), ('Ultra Rara'), 
 
 INSERT INTO Giochi VALUES ('Yu-Gi-Oh!'), ('Pokemon'), ('Magic: The Gathering');
 
-INSERT INTO Prodotti(Nome, Descrizione, Rarita, Gioco) VALUES('Jinzo', 'Mucho fuerte', 'Comune', 'Yu-Gi-Oh!')
+INSERT INTO Espansioni (Nome) VALUES('Prima espansione'), ('Seconda espansione'), ('Terza espansione'), ('Quarta espansione');
+
+INSERT INTO Prodotti (Nome, Descrizione, Rarita, Gioco, Espansione) VALUES ('Jinzo', 'Una carta che annulla le trappole avversarie', 'Comune', 'Yu-Gi-Oh!', 'Prima espansione');
+INSERT INTO Prodotti (Nome, Descrizione, Rarita, Gioco, Espansione) VALUES ('Drago Blu Occhi Bianchi', 'Una potente carta mostro con un attacco devastante', 'Ultra Rara', 'Yu-Gi-Oh!', 'Seconda espansione');
+INSERT INTO Prodotti (Nome, Descrizione, Rarita, Gioco, Espansione) VALUES ('Cambio di Cuore', 'Una magia che permette di scambiare il controllo di due mostri', 'Super Rara', 'Yu-Gi-Oh!', 'Prima espansione');
+INSERT INTO Prodotti (Nome, Descrizione, Rarita, Gioco, Espansione) VALUES ('Forza dello Specchio', 'Una trappola che riflette gli attacchi del nemico', 'Rara', 'Yu-Gi-Oh!', 'Terza espansione');
+INSERT INTO Prodotti (Nome, Descrizione, Rarita, Gioco, Espansione) VALUES ('Drago Bianco Occhi Blu', 'Il potente drago custode dei tesori', 'Rara Ghost', 'Yu-Gi-Oh!', 'Seconda espansione');
+INSERT INTO Prodotti (Nome, Descrizione, Rarita, Gioco, Espansione) VALUES ('Potere del Polimerizzazione', 'Una magia essenziale per evocare mostri fusioni', 'Comune', 'Yu-Gi-Oh!', 'Terza espansione');
+INSERT INTO Prodotti (Nome, Descrizione, Rarita, Gioco, Espansione) VALUES ('Pikachu', 'Un famoso Pokémon con il potere del tuono', 'Rara', 'Pokemon', 'Prima espansione');
+INSERT INTO Prodotti (Nome, Descrizione, Rarita, Gioco, Espansione) VALUES ('Charizard', 'Un potente Pokémon di tipo fuoco e volante', 'Ultra Rara', 'Pokemon', 'Terza espansione');
+INSERT INTO Prodotti (Nome, Descrizione, Rarita, Gioco, Espansione) VALUES ('Mewtwo', 'Un leggendario Pokémon psichico con abilità straordinarie', 'Super Rara', 'Pokemon', 'Prima espansione');
+INSERT INTO Prodotti (Nome, Descrizione, Rarita, Gioco, Espansione) VALUES ('Eevee', 'Un affascinante Pokémon capace di evolversi in diverse forme', 'Comune', 'Pokemon', 'Seconda espansione');
+INSERT INTO Prodotti (Nome, Descrizione, Rarita, Gioco, Espansione) VALUES ('Bulbasaur', 'Un adorabile Pokémon di tipo erba e veleno', 'Rara', 'Pokemon', 'Seconda espansione');
+INSERT INTO Prodotti (Nome, Descrizione, Rarita, Gioco, Espansione) VALUES ('Gideon Jura', 'Un potente planeswalker capace di proteggere gli alleati', 'Rara Ultimate', 'Magic: The Gathering', 'Seconda espansione');
+INSERT INTO Prodotti (Nome, Descrizione, Rarita, Gioco, Espansione) VALUES ('Black Lotus', 'Una delle carte più rare e potenti di Magic', 'Rara', 'Magic: The Gathering', 'Prima espansione');
+INSERT INTO Prodotti (Nome, Descrizione, Rarita, Gioco, Espansione) VALUES ('Jace, the Mind Sculptor', 'Un influente planeswalker in grado di manipolare le menti', 'Rara Ghost', 'Magic: The Gathering', 'Terza espansione');
+INSERT INTO Prodotti (Nome, Descrizione, Rarita, Gioco, Espansione) VALUES ('Lightning Bolt', 'Una magia istantanea che infligge danni diretti', 'Comune', 'Magic: The Gathering', 'Prima espansione');
+INSERT INTO Prodotti (Nome, Descrizione, Rarita, Gioco, Espansione) VALUES ('Tarmogoyf', 'Una creatura che cresce in potenza con le carte nel cimitero', 'Ultra Rara', 'Magic: The Gathering', 'Seconda espansione');
+
+INSERT INTO Offerte (Prezzo, Quantita, Lingua, Locazione, Condizione, Prodotto, UsernameVenditore) VALUES
+(10.99, 3, 'Italiano', 'Italia', 'Molto buono', 1, 'seller'),
+(25.50, 1, 'Inglese', 'Stati Uniti', 'Molto buono', 1, 'seller3'),
+(5.00, 2, 'Italiano', 'Italia', 'Buono', 2, 'seller2'),
+(50.00, 1, 'Inglese', 'Regno Unito', 'Rovinato', 2, 'seller2'),
+(7.99, 4, 'Italiano', 'Italia', 'Buono', 3, 'seller3'),
+(20.99, 2, 'Inglese', 'Stati Uniti', 'Molto rovinato', 3, 'seller'),
+(3.99, 5, 'Italiano', 'Italia', 'Molto buono', 4, 'seller2'),
+(8.50, 3, 'Inglese', 'Regno Unito', 'Molto buono', 4, 'seller'),
+(99.99, 1, 'Italiano', 'Italia', 'Perfetto', 5, 'seller3'),
+(199.99, 1, 'Inglese', 'Stati Uniti', 'Rovinato', 5, 'seller2'),
+(1.00, 10, 'Italiano', 'Italia', 'Perfetto', 6, 'seller'),
+(2.50, 5, 'Inglese', 'Regno Unito', 'Molto buono', 6, 'seller'),
+(4.99, 8, 'Italiano', 'Italia', 'Perfetto', 7, 'seller3'),
+(9.99, 3, 'Inglese', 'Stati Uniti', 'Molto buono', 7, 'seller2'),
+(19.99, 2, 'Italiano', 'Italia', 'Perfetto', 8, 'seller'),
+(39.99, 1, 'Inglese', 'Regno Unito', 'Molto rovinato', 8, 'seller2'),
+(14.99, 4, 'Italiano', 'Italia', 'Rovinato', 9, 'seller3'),
+(29.99, 2, 'Inglese', 'Stati Uniti', 'Perfetto', 9, 'seller'),
+(2.99, 6, 'Italiano', 'Italia', 'Perfetto', 10, 'seller3'),
+(6.99, 2, 'Inglese', 'Regno Unito', 'Perfetto', 10, 'seller3'),
+(5.99, 5, 'Italiano', 'Italia', 'Perfetto', 11, 'seller'),
+(11.99, 3, 'Inglese', 'Stati Uniti', 'Rovinato', 11, 'seller'),
+(29.99, 1, 'Italiano', 'Italia', 'Molto rovinato', 12, 'seller'),
+(59.99, 1, 'Inglese', 'Regno Unito', 'Molto rovinato', 12, 'seller2'),
+(4999.99, 1, 'Italiano', 'Italia', 'Rovinato', 13, 'seller2'),
+(9999.99, 1, 'Inglese', 'Stati Uniti', 'Perfetto', 13, 'seller'),
+(799.99, 1, 'Italiano', 'Italia', 'Perfetto', 14, 'seller3'),
+(2099.99, 1, 'Inglese', 'Regno Unito', 'Molto rovinato', 14, 'seller'),
+(0.99, 20, 'Italiano', 'Italia', 'Molto buono', 15, 'seller2'),
+(2.49, 10, 'Inglese', 'Regno Unito', 'Molto buono', 15, 'seller'),
+(24.99, 3, 'Italiano', 'Italia', 'Rovinato', 16, 'seller3'),
+(49.99, 1, 'Inglese', 'Stati Uniti', 'Molto rovinato', 16, 'seller2');
