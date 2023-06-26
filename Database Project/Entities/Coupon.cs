@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace Database_Project.Entities
 {
-    public record Offert(int OffertId, decimal Price, int Quantity, string Conditions, string Language, string Location, int ProductId, string SellerUsername);
+    public record Coupon(string CouponCode, DateTime ExpireDate, decimal Value, string UserGenerator, string UserUtilizer);
 }
