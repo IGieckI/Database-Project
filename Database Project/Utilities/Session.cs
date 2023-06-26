@@ -22,6 +22,8 @@ namespace Database_Project.Entities
 
         public static List<Detail> ShoppingCart = new List<Detail>();
 
+        public static List<Coupon> Coupons = new List<Coupon>();
+
         public static IDatabase Database = new DatabaseImpl();
     }
 }
