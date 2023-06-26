@@ -18,7 +18,7 @@ namespace Database_Project
         public MainWindow()
         {
             InitializeComponent();
-            frmPages.Navigate(new Administration());
+            frmPages.Navigate(new ProductList());
         }
 
         private void btnProducts_Click(object sender, RoutedEventArgs e)
@@ -104,8 +104,6 @@ namespace Database_Project
             txtUsername.IsEnabled = true;
             txtPassword.IsEnabled = true;
 
-            Login = LoginType.None;
-
             btnLogin.Visibility = Visibility.Visible;
             btnLogout.Visibility = Visibility.Hidden;
 
@@ -118,6 +116,11 @@ namespace Database_Project
             rdbAdmin.IsEnabled = true;
 
             lblUsername.Content = "Username";
+
+            Username = "";
+            Login = LoginType.None;
+            ShoppingCart.Clear();
+            Coupons.Clear();
 
             frmPages.Navigate(new ProductList());
         }
@@ -144,6 +147,8 @@ namespace Database_Project
             btnAdministration.IsEnabled = false;
 
             lblUsername.Content = $"Welcome {Username}";
+
+            frmPages.Navigate(new ProductList());
         }
     }
 }
