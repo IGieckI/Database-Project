@@ -10,12 +10,20 @@
 
     <Grid>
         <Label Content="Shopping cart:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <DataGrid x:Name="grdShoppingCart" Margin="10,36,412,273"/>
-        <TextBox x:Name="txtFeedback" HorizontalAlignment="Left" Margin="400,36,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="160" Height="141"/>
+        <DataGrid x:Name="grdShoppingCart" Margin="10,36,406,273"/>
+        <TextBox x:Name="txtFeedback" HorizontalAlignment="Left" Margin="400,36,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="160" Height="110"/>
         <Label Content="Feedback:" HorizontalAlignment="Left" Margin="400,10,0,0" VerticalAlignment="Top"/>
         <Label Content="Totale:" HorizontalAlignment="Left" Margin="10,182,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="btnPurchase" Content="Buy" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Width="51"/>
-        <Label x:Name="lblTotale" HorizontalAlignment="Left" Margin="59,190,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="btnPurchase" Content="Buy" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Width="51" Click="btnPurchase_Click"/>
+        <Label x:Name="lblTotale" HorizontalAlignment="Left" Margin="51,183,0,0" VerticalAlignment="Top"/>
+        <ComboBox x:Name="cmbRating" HorizontalAlignment="Left" Margin="452,155,0,0" VerticalAlignment="Top" Width="108" SelectedIndex="10">
+        </ComboBox>
+        <Label Content="Rating:" HorizontalAlignment="Left" Margin="400,151,0,0" VerticalAlignment="Top"/>
+        <Label Content="Insert coupon:" HorizontalAlignment="Left" Margin="314,182,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtCoupon" HorizontalAlignment="Left" Margin="400,187,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="86"/>
+        <Button x:Name="btnCoupon" Content="Add coupon" HorizontalAlignment="Left" Margin="491,186,0,0" VerticalAlignment="Top" Click="btnCoupon_Click"/>
+        <Label x:Name="lblCoupon" Content="" HorizontalAlignment="Left" Margin="400,205,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="lblResponse" Content="" HorizontalAlignment="Left" Margin="66,0,0,0" VerticalAlignment="Center"/>
 
     </Grid>
 </Page>
