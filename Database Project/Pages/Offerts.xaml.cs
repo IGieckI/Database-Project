@@ -25,14 +25,15 @@ namespace Database_Project.Pages
     public partial class Offerts : Page
     {
         private List<Offert> _offertsList = new List<Offert>();
+        private Product _product;
 
         public Offerts(Product product)
         {
+            _product = product;
+
             InitializeComponent();
 
-            _offertsList = Database.GetOfferts(product.ProductId);
-            grdOfferts.ItemsSource = _offertsList;
-            grdOfferts.Items.Refresh();
+            RefreshGrid();
 
             lblName.Content = product.Name;
             lblDate.Content = product.Date;
@@ -40,8 +41,43 @@ namespace Database_Project.Pages
             lblGame.Content = product.Game;
             lblExpansion.Content = product.Expansion;
             lblDescription.Content = product.Description;
+
+            if (Login != LoginType.User)
+            {
+                btnAdd.IsEnabled = false;
+            }
         }
 
+        private void btnAdd_Click(object sender, RoutedEventArgs e)
+        {
+            if (grdOfferts.SelectedIndex == -1)
+            {
+                lblResponse.Content = "No elements selected!";
+                return;
+            }
 
+            Offert offert = (Offert)(grdOfferts.SelectedItem);
+
+            for (int i=0; i<ShoppingCart.Count; i++)
+            {
+                if (ShoppingCart[i].OffertId == offert.OffertId)
+                {
+                    ShoppingCart[i] = new Detail(ShoppingCart[i].DetailId, ShoppingCart[i].Price, ShoppingCart[i].Quantity+1, ShoppingCart[i].OffertId, ShoppingCart[i].SellId);
+                    break;
+                }
+            }
+
+            ShoppingCart.Add(new Detail(-1, offert.Price, 1, offert.OffertId, -1));
+
+            Database.AddToCart(offert.OffertId);
+            RefreshGrid();
+        }
+
+        private void RefreshGrid()
+        {
+            _offertsList = Database.GetOfferts(_product.ProductId);
+            grdOfferts.ItemsSource = _offertsList;
+            grdOfferts.Items.Refresh();
+        }
     }
 }
