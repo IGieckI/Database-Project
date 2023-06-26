@@ -18,8 +18,9 @@
         <Button x:Name="btnSearch" Content="Search" HorizontalAlignment="Left" Margin="216,79,0,0" VerticalAlignment="Top" Width="53" Click="btnSearch_Click"/>
         <DataGrid x:Name="grdProducts" Margin="5,107,0,0">
         </DataGrid>
-        <Button x:Name="btnWishlist" Content="Add to wishlist" HorizontalAlignment="Left" Margin="274,79,0,0" VerticalAlignment="Top" Width="105" Click="btnWishlist_Click"/>
+        <Button x:Name="btnWishlist" Content="Add to wishlist" HorizontalAlignment="Left" Margin="546,79,0,0" VerticalAlignment="Top" Width="105" Click="btnWishlist_Click"/>
         <Label x:Name="lblWishlistResult" Content="" HorizontalAlignment="Left" Margin="384,76,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="btnSeeOfferts" Content="See offerts" HorizontalAlignment="Left" Margin="580,79,0,0" VerticalAlignment="Top" Click="btnSeeOfferts_Click"/>
+        <Button x:Name="btnSeeOfferts" Content="See offerts" HorizontalAlignment="Left" Margin="546,54,0,0" VerticalAlignment="Top" Click="btnSeeOfferts_Click"/>
+        <Button x:Name="btnCart" Content="View cart" HorizontalAlignment="Left" Margin="546,13,0,0" VerticalAlignment="Top" Width="105" Click="btnCart_Click"/>
     </Grid>
 </Page>

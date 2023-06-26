@@ -48,21 +48,18 @@ namespace Database_Project.Pages
             }
             cmbRarity.Items.Add("");
 
+            if (Login != LoginType.User)
+            {
+                btnCart.IsEnabled = false;
+                btnWishlist.IsEnabled = false;
+            }
+
+            RefreshGrid();
         }
 
         private void btnSearch_Click(object sender, RoutedEventArgs e)
         {
-            _productList.Clear();
-
-            _productList.AddRange(Database.GetProducts(txtSearch.Text, cmbRarity.Text, cmbGame.Text));
-
-            grdProducts.ItemsSource = _productList;
-
-            grdProducts.Columns.Remove(grdProducts.Columns.FirstOrDefault(c => c.Header.ToString() == "ProductId"));
-            grdProducts.Columns.Remove(grdProducts.Columns.FirstOrDefault(c => c.Header.ToString() == "Description"));
-
-            lblWishlistResult.Content = "";
-            grdProducts.Items.Refresh();
+            RefreshGrid();
         }
 
         private void btnWishlist_Click(object sender, RoutedEventArgs e)
@@ -88,6 +85,27 @@ namespace Database_Project.Pages
                 NavigationService ns = NavigationService.GetNavigationService(this);
                 ns.Navigate(new Offerts(_productList[grdProducts.SelectedIndex]));
             }            
+        }
+
+        private void btnCart_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService ns = NavigationService.GetNavigationService(this);
+            ns.Navigate(new Purchase());
+        }
+
+        private void RefreshGrid()
+        {
+            _productList.Clear();
+
+            _productList.AddRange(Database.GetProducts(txtSearch.Text, cmbRarity.Text, cmbGame.Text));
+
+            grdProducts.ItemsSource = _productList;
+
+            grdProducts.Columns.Remove(grdProducts.Columns.FirstOrDefault(c => c.Header.ToString() == "ProductId"));
+            grdProducts.Columns.Remove(grdProducts.Columns.FirstOrDefault(c => c.Header.ToString() == "Description"));
+
+            lblWishlistResult.Content = "";
+            grdProducts.Items.Refresh();
         }
     }
 }
